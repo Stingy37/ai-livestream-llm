@@ -21,7 +21,7 @@ from modules.configs import (
 
 
 # Initialize environment for running generate_livestream
-def initialize_enviroment():
+def initialize_environment():
     # Start tracemalloc to track memory allocations
     tracemalloc.start()
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
