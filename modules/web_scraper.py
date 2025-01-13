@@ -82,6 +82,10 @@ async def fetch_and_process_html(driver, url, process_to_db, semaphore):
 
 # Manages async operations of ONLY scrapping URL
 async def fetch_html(driver, url, semaphore):
+    # Accounts for if URL is a list by converting to string
+    if isinstance(url, list):
+        url = str(url[0])
+        
     # If URL is a direct PDF link
     if url.lower().endswith('.pdf'):
         print("Scrapping PDF", url)

@@ -61,7 +61,7 @@ async def generate_livestream(audio_already_playing):
         create_script(
             search_queries_list = websites_and_search_queries['city_forecast_queries_two_ph'], # This is also the google search terms, if do_google_search = True
             image_search_queries = None,
-            final_script_system_instructions = system_instructions['city_forecast_system_instructions_p'],
+            final_script_system_instructions = system_instructions['city_forecast_system_instructions_ph'],
             return_images = False,
             do_google_search = False,
             websites_to_use = websites_and_search_queries['city_forecast_websites_two_ph'],
