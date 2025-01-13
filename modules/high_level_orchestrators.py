@@ -168,3 +168,4 @@ async def process_urls_and_get_intermediate_answer(query, search_api_key, search
       gpt_answer = await return_gpt_answer(formatted_web_scrapper_system_instructions, query)
 
       return {"gpt_answer": gpt_answer}
+
