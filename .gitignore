@@ -8,4 +8,4 @@ modules/__pycache__/
 .DS_Store
 
 # Ignore Google JSON OAuth Credentials
-google-JSON-API-credentials/
+pull_youtube_messages_credentials.json
