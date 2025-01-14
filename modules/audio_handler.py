@@ -120,3 +120,5 @@ async def play_audio(file_info):
     actual_finish_time_end = time.time()
     print(f"actual finish time taken for {file_name} to play: {actual_finish_time_end - actual_finish_time_start}")
     print(f"{file_name} audio done playing, expected finish time: {audio_duration}")
+
+    
