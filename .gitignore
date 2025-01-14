@@ -6,3 +6,6 @@ modules/__pycache__/
 
 # Ignore macOS system files
 .DS_Store
+
+# Ignore Google JSON OAuth Credentials
+google-JSON-API-credentials/
