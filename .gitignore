@@ -7,5 +7,5 @@ modules/__pycache__/
 # Ignore macOS system files
 .DS_Store
 
-# Ignore Google JSON OAuth Credentials
-pull_youtube_messages_credentials.json
+# Ignore all JSON files
+*.json
