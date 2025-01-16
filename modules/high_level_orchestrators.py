@@ -1,6 +1,12 @@
 """
 This module provides functions that coordinate the content generate aspect of the program
 (ie. in charge of organizing calls to lower level functions in other modules)
+
+Functions: 
+    create_script()
+    main()
+    async_parallel_run()
+    process_urls_and_get_intermediate_answer()
 """
 
 
@@ -12,11 +18,11 @@ import aiohttp
 
 # Local Application/Library-Specific Imports
 from modules.configs import (
-    google_search_urls_to_return, 
-    images_to_return, 
-    search_api_key, 
-    search_engine_id, 
-    system_instructions 
+    google_search_urls_to_return,
+    images_to_return,
+    search_api_key,
+    search_engine_id,
+    system_instructions
 )
 from modules.database_handler import find_relevant_docs
 from modules.openai_handler import generate_text, return_gpt_answer

@@ -1,5 +1,10 @@
 """
 This module provides everything related to processing text, particularly in preparing HTML for vector database
+
+Functions:
+    filter_content()
+    split_markdown_chunks()
+    filter_key_messages()
 """
 
 

@@ -1,6 +1,12 @@
 """
 This module provides functions that coordinate playing of audio and time content delivery
 (ie. downloads to local, processing scenes in sequence, etc.)
+
+Functions:
+    generate_livestream()
+    controller_play_audio_and_download_handler()
+    controller_play_audio_and_download()
+    process_scene()
 """
 
 

@@ -1,5 +1,9 @@
 """
 This module provides functions related to interacting with OpenAI's API and returning an answer
+
+Functions:
+    generate_text()
+    return_gpt_answer()
 """
 
 

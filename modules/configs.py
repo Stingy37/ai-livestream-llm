@@ -1,8 +1,15 @@
 """
-This [large] module contains various unchanging variables used throughout the program. Structure is as follows:
-general_config_settings dictionary -> general configuration settings, API keys, and global variables that are used throughout the application
-urls_and_search_queries dictionary -> URLs and search queries, categorized by their use case or language
-system_instructions dictionary -> all system instructions and prompts for the AI models, organized by functionality
+This [large] module contains various unchanging variables used throughout the program. 
+
+Structure:
+    general_config_settings dictionary -> 
+    general configuration settings, API keys, and global variables that are used throughout the application
+
+    urls_and_search_queries dictionary ->
+     URLs and search queries, categorized by their use case or language
+
+    system_instructions dictionary -> 
+    all system instructions and prompts for the AI models, organized by functionality
 """
 
 

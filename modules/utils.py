@@ -1,5 +1,12 @@
 """
-Add documentation for utils later 
+This module provides general helper functions that assist in things like setting up the environment, handling languages, etc. 
+
+Functions:
+    initialize_environment()
+    initialize_executors()
+    shutdown_executors()
+    reset_global_variables()
+    handle_language()
 """
 
 
@@ -49,7 +56,7 @@ def shutdown_executors():
         print("No database executor to shut down.")
 
 
-# Resets counters so that counters function when create_script is reused
+# Resets counters so that they correctly function when create_script is reused
 def reset_global_variables():
     global cse_api_call_count
     cse_api_call_count = 0

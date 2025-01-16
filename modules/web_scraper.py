@@ -1,5 +1,16 @@
 """
 This module provides functions that related to returning text or images from a certain URL
+
+Functions:
+    google_search()
+    
+    fetch_and_process_html()
+    fetch_html()
+    fetch_html_sync()
+    fetch_pdf_content()
+
+    fetch_images_off_specific_url()
+    get_image_urls()
 """
 
 # Standard Library Imports
@@ -85,7 +96,7 @@ async def fetch_html(driver, url, semaphore):
     # Accounts for if URL is a list by converting to string
     if isinstance(url, list):
         url = str(url[0])
-        
+
     # If URL is a direct PDF link
     if url.lower().endswith('.pdf'):
         print("Scrapping PDF", url)

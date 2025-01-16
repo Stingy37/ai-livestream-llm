@@ -1,5 +1,9 @@
 """
 This module contains functions related to managing selenium's webdriver
+
+Functions:
+    initialize_chrome_driver()
+    create_drivers()
 """
 
 # Standard Library Imports

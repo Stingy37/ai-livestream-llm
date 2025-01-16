@@ -1,5 +1,13 @@
 """
 This module provides functions that handles everything related to interaction vector database
+
+Classes:
+    Document
+
+Functions:
+    process_html_to_db()
+    find_relevant_docs()
+    similarity_search_database()
 """
 
 
