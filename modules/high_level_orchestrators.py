@@ -22,7 +22,6 @@ from modules.configs import (
     images_to_return,
     search_api_key,
     search_engine_id,
-    system_instructions
 )
 from modules.database_handler import find_relevant_docs
 from modules.openai_handler import generate_text, return_gpt_answer
@@ -34,19 +33,21 @@ from modules.webdriver_handler import create_drivers
 # Entry point for asyncio program (creating a script)
 async def create_script(search_queries_list, image_search_queries, final_script_system_instructions, return_images, do_google_search,
                         websites_to_use, k_value_similarity_search, language):
-    web_scrapper_system_instructions, key_messages_system_instructions = await handle_language(language)
+    (web_scrapper_system_instructions,
+     key_messages_system_instructions, 
+     topic_system_instructions) = await handle_language(language)
 
     loop = asyncio.get_event_loop()
 
     # Capture the result returned by the async function
     items_generated = loop.run_until_complete(main(search_queries_list, final_script_system_instructions, search_api_key, search_engine_id, image_search_queries, return_images, do_google_search,
-                                                   websites_to_use, k_value_similarity_search, web_scrapper_system_instructions, key_messages_system_instructions))
+                                                   websites_to_use, k_value_similarity_search, web_scrapper_system_instructions, key_messages_system_instructions, topic_system_instructions))
     return items_generated
 
 
 # Uses intermediate answer from "process_urls_and_get_intermediate_answer" to return final products (script + key messages)
 async def main(search_queries, final_script_system_instructions, search_api_key, search_engine_id, image_search_queries,
-               return_images, do_google_search, websites_to_use, k_value_similarity_search, web_scrapper_system_instructions, key_messages_system_instructions):
+               return_images, do_google_search, websites_to_use, k_value_similarity_search, web_scrapper_system_instructions, key_messages_system_instructions, topic_system_instructions):
     print(image_search_queries)
     results = asyncio.run(async_parallel_run(search_queries, search_api_key, search_engine_id, image_search_queries,
                                              do_google_search, websites_to_use, k_value_similarity_search, web_scrapper_system_instructions))
@@ -68,8 +69,7 @@ async def main(search_queries, final_script_system_instructions, search_api_key,
 
     script_task = asyncio.create_task(generate_text(combined_answers, final_script_system_instructions, item_being_generated = "news_script"))
     key_messages_task = asyncio.create_task(generate_text(combined_answers, key_messages_system_instructions, item_being_generated = "key_messages"))
-    topic_task = asyncio.create_task(generate_text(combined_answers, system_instructions['topic_system_instructions_ph'], item_being_generated = "topic")) # Modularize topic_system_instructions_p later
-
+    topic_task = asyncio.create_task(generate_text(combined_answers, topic_system_instructions, item_being_generated = "topic")) 
     script, key_messages, topic = await asyncio.gather(script_task, key_messages_task, topic_task)
 
     '************************************************ Determines what to return based on parameters ******************************************************'

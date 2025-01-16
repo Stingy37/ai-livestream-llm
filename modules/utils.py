@@ -23,7 +23,7 @@ import nest_asyncio
 from modules.configs import (
     database_executor,
     cse_api_call_count,
-    system_instructions
+    system_instructions_generate_livestream
 )
 
 
@@ -68,12 +68,16 @@ async def handle_language(language):
     # Dictionary mapping language codes to parameters
     language_params = {
         'en': {
-            'web_scrapper_system_instructions': system_instructions['web_scrapper_system_instructions_en'],
-            'key_messages_system_instructions': system_instructions['key_messages_system_instructions_en'],
+            'web_scrapper_system_instructions': system_instructions_generate_livestream['web_scrapper_system_instructions_en'],
+            'key_messages_system_instructions': system_instructions_generate_livestream['key_messages_system_instructions_en'],
+            'topic_system_instructions': system_instructions_generate_livestream['topic_system_instructions_en'],
+
         },
         'ph': {
-            'web_scrapper_system_instructions': system_instructions['web_scrapper_system_instructions_ph'],
-            'key_messages_system_instructions': system_instructions['key_messages_system_instructions_ph'],
+            'web_scrapper_system_instructions': system_instructions_generate_livestream['web_scrapper_system_instructions_ph'],
+            'key_messages_system_instructions': system_instructions_generate_livestream['key_messages_system_instructions_ph'],
+            'topic_system_instructions': system_instructions_generate_livestream['topic_system_instructions_ph'],
+
         },
 
         # Add more languages as needed
@@ -81,4 +85,4 @@ async def handle_language(language):
 
     # Get the dictionary and return its values
     params = language_params.get(language)
-    return params['web_scrapper_system_instructions'], params['key_messages_system_instructions']
+    return params['web_scrapper_system_instructions'], params['key_messages_system_instructions'], params['topic_system_instructions']

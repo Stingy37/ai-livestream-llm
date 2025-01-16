@@ -16,7 +16,7 @@ from IPython.display import clear_output
 
 # Local Application/Library-Specific Imports
 from modules.audio_handler import play_audio
-from modules.configs import system_instructions, websites_and_search_queries
+from modules.configs import system_instructions_generate_livestream, websites_and_search_queries
 from modules.file_manager import download_file_handler, generate_scene_content, save_images_async
 from modules.high_level_orchestrators import create_script
 from modules.utils import initialize_executors, reset_global_variables, shutdown_executors
@@ -43,7 +43,7 @@ async def generate_livestream(audio_already_playing):
         create_script(
             search_queries_list = websites_and_search_queries['tropics_main_search_queries'], # Universal across all languages
             image_search_queries = None,
-            final_script_system_instructions = system_instructions['tropics_news_reporter_system_instructions_en'],
+            final_script_system_instructions = system_instructions_generate_livestream['tropics_news_reporter_system_instructions_en'],
             return_images = False,
             do_google_search = False,
             websites_to_use = websites_and_search_queries['tropics_forecast_websites_ph'],
@@ -55,7 +55,7 @@ async def generate_livestream(audio_already_playing):
         create_script(
             search_queries_list = websites_and_search_queries['city_forecast_queries_one_ph'], # This is also the google search terms, if do_google_search = True
             image_search_queries = None,
-            final_script_system_instructions = system_instructions['city_forecast_system_instructions_ph'],
+            final_script_system_instructions = system_instructions_generate_livestream['city_forecast_system_instructions_ph'],
             return_images = False,
             do_google_search = False,
             websites_to_use = websites_and_search_queries['city_forecast_websites_one_ph'],
@@ -67,7 +67,7 @@ async def generate_livestream(audio_already_playing):
         create_script(
             search_queries_list = websites_and_search_queries['city_forecast_queries_two_ph'], # This is also the google search terms, if do_google_search = True
             image_search_queries = None,
-            final_script_system_instructions = system_instructions['city_forecast_system_instructions_ph'],
+            final_script_system_instructions = system_instructions_generate_livestream['city_forecast_system_instructions_ph'],
             return_images = False,
             do_google_search = False,
             websites_to_use = websites_and_search_queries['city_forecast_websites_two_ph'],

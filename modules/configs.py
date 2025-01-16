@@ -215,7 +215,7 @@ websites_and_search_queries = {
 
 ################################################################## system instructions ##########################################################################
 
-system_instructions = {
+system_instructions_generate_livestream = {
     # tropics_news_reporter_system_instructions in use
     'tropics_news_reporter_system_instructions_en': (
         "You are a news reporter specializing in giving updates about tropical weather. Information will be given to you from the user's end, which you can pretend is your research team."
