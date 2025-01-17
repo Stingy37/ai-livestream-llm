@@ -59,8 +59,8 @@ async def find_relevant_docs(query, database_list, urls_used, num_of_docs_to_ret
                 relevant_page_content.extend(result['relevant_page_content'])
                 metadata.extend(result['metadata'])
 
-    information_string = ", ".join(relevant_page_content)
-    return [information_string, metadata]
+    relevant_page_content_string = ", ".join(relevant_page_content)
+    return [relevant_page_content_string, metadata]
 
 
 # Returns passages in database with most similarity to query

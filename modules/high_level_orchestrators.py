@@ -52,10 +52,10 @@ async def main(search_queries, final_script_system_instructions, search_api_key,
     results = asyncio.run(async_parallel_run(search_queries, search_api_key, search_engine_id, image_search_queries,
                                              do_google_search, websites_to_use, k_value_similarity_search, web_scrapper_system_instructions))
 
+    '****************************************************************************************************************************************************'
+
     script_gpt_answers = []
     total_image_urls = []
-
-    '****************************************************************************************************************************************************'
 
     # Gets GPT answer and image url from each thread to combine them
     for result in results:
@@ -70,6 +70,7 @@ async def main(search_queries, final_script_system_instructions, search_api_key,
     script_task = asyncio.create_task(generate_text(combined_answers, final_script_system_instructions, item_being_generated = "news_script"))
     key_messages_task = asyncio.create_task(generate_text(combined_answers, key_messages_system_instructions, item_being_generated = "key_messages"))
     topic_task = asyncio.create_task(generate_text(combined_answers, topic_system_instructions, item_being_generated = "topic")) 
+
     script, key_messages, topic = await asyncio.gather(script_task, key_messages_task, topic_task)
 
     '************************************************ Determines what to return based on parameters ******************************************************'
@@ -164,11 +165,11 @@ async def process_urls_and_get_intermediate_answer(query, search_api_key, search
       database_list = await asyncio.gather(*tasks)
 
       relevant_information = await find_relevant_docs(query, database_list, urls_used = drivers_to_create, num_of_docs_to_return = k_value_similarity_search)
-      relevant_info_1, relevant_info_2 = relevant_information
+      page_content, metadata = relevant_information
 
       formatted_web_scrapper_system_instructions = web_scrapper_system_instructions.format(
-          relevant_info_placeholder1 = relevant_info_1,
-          relevant_info_placeholder2 = relevant_info_2
+          page_content_placeholder = page_content,
+          metadata_placeholder = metadata
       )
 
       gpt_answer = await return_gpt_answer(formatted_web_scrapper_system_instructions, query)

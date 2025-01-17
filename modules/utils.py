@@ -7,12 +7,15 @@ Functions:
     shutdown_executors()
     reset_global_variables()
     handle_language()
+    monitor_file_changes()
+    read_file()
 """
 
 
 # Standard Library Imports
-import tracemalloc
+import os
 import logging
+import tracemalloc
 from concurrent.futures import ThreadPoolExecutor
 
 # Third-Party Library Imports
@@ -86,3 +89,45 @@ async def handle_language(language):
     # Get the dictionary and return its values
     params = language_params.get(language)
     return params['web_scrapper_system_instructions'], params['key_messages_system_instructions'], params['topic_system_instructions']
+
+
+def read_file(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    return ""
+
+# Monitor a certain file for changes, if so, send a signal via adding to queue and keep monitoring
+async def monitor_file_changes(stop_event, file_path, signal_queue):
+    last_mod_time = None
+
+    # As long as stop_event references same asyncio.event object, setting it anywhere will cause stop_event.is_set() to be true
+    while not stop_event.is_set():
+        try:
+            current_mod_time = os.path.getmtime(file_path)
+
+            if last_mod_time is None:
+                last_mod_time = current_mod_time
+            elif current_mod_time != last_mod_time:
+                last_mod_time = current_mod_time
+                await signal_queue.put(file_path)
+
+        except FileNotFoundError:
+            print(f"File {file_path} does not exist.")
+
+        await asyncio.sleep(1) # Checks every 1 second 
+
+    print("Monitoring for " + file_path + " ended")
+
+# Provides a list of the current topics that were used while stop_event wasn't set (essentially stores past current topics)
+async def create_current_topic_list(stop_event, change_queue):
+    current_topic_list = []
+
+    while not stop_event.is_set():
+        file_path = await change_queue.get()
+        current_topic_list.append(read_file(file_path))
+        for index, topic in enumerate(current_topic_list):
+            print(f"The current topic at index {index} is: {topic}")
+
+    return current_topic_list
+
