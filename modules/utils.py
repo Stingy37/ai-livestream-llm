@@ -13,6 +13,7 @@ Functions:
 
 
 # Standard Library Imports
+import asyncio
 import os
 import logging
 import tracemalloc
@@ -110,7 +111,7 @@ async def monitor_file_changes(stop_event, file_path, signal_queue):
                 last_mod_time = current_mod_time
             elif current_mod_time != last_mod_time:
                 last_mod_time = current_mod_time
-                await signal_queue.put(file_path)
+                await signal_queue.put(file_path) # Do something when item is added to queue
 
         except FileNotFoundError:
             print(f"File {file_path} does not exist.")
