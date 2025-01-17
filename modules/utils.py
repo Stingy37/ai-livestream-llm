@@ -118,7 +118,10 @@ async def monitor_file_changes(stop_event, file_path, signal_queue):
 
         await asyncio.sleep(1) # Checks every 1 second 
 
-    print("Monitoring for " + file_path + " ended")
+    await asyncio.sleep(1)
+    await signal_queue.put("sentinel_value") # Sentinel value to terminate await change_queue.get() 
+
+    print(f"End of monitor_file_changes reached for {file_path}")
 
 # Provides a list of the current topics that were used while stop_event wasn't set (essentially stores past current topics)
 async def create_current_topic_list(stop_event, change_queue):
@@ -126,9 +129,16 @@ async def create_current_topic_list(stop_event, change_queue):
 
     while not stop_event.is_set():
         file_path = await change_queue.get()
+        if file_path == "sentinel_value":
+            break
         current_topic_list.append(read_file(file_path))
-        for index, topic in enumerate(current_topic_list):
-            print(f"The current topic at index {index} is: {topic}")
+
+    print(f"Stop event status: {stop_event.is_set}")
+
+    for index, topic in enumerate(current_topic_list):
+         print(f"The current topic at index {index} is: {topic}")
+
+    print(f"End of create_current_topic_list reached for {file_path}")
 
     return current_topic_list
 
