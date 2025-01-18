@@ -66,7 +66,7 @@ cse_api_call_lock = asyncio.Lock()
 use_tts_api = None
 
 # Global ThreadPoolExecutors for managing tasks (Initialized in utils.initialize_executors)
-database_executor = None  
+database_executor = None
 fetch_html_executor = None
 executor_list = []
 
@@ -74,10 +74,6 @@ executor_list = []
 
 websites_and_search_queries = {
     # Sorted by most commonly used -> least commonly used (top to bottom)
-
-   'tropical_tidbits_storm_url': [
-   'https://www.tropicaltidbits.com/storminfo/#25W'
-   ],
 
     'tropics_forecast_websites_cn': [
         'https://www.metoc.navy.mil/jtwc/products/wp2324prog.txt',

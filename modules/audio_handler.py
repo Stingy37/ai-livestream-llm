@@ -40,7 +40,7 @@ async def generate_audio(generated_items, file_name):
 
   # Export the combined audio file
   combined_file_name = f"combined_output_{file_name}.mp3"
-  # combined_audio = combined_audio[:15000] # Truncate to 15 seconds for testing purposes, remove line if otherwise
+  combined_audio = combined_audio[:60000] # Truncate to ___ seconds for testing purposes, comment line out if otherwise
   combined_audio.export(combined_file_name, format="mp3")
 
   # Get the duration of the combined audio

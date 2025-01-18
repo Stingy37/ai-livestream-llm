@@ -45,7 +45,10 @@ def initialize_chrome_driver():
 
             # print(f"Using chromedriver at: {chromedriver_path}")
             driver = webdriver.Chrome(service=Service(chromedriver_path), options=chrome_options)
+            driver.set_page_load_timeout(300)          # 5 minutes for page load
+
             return driver
+
         except Exception as e:
             print(f"Failed to initialize ChromeDriver. Retrying... ({retry_count + 1}/10)")
             print("Error exception:", e)

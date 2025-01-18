@@ -29,7 +29,7 @@ from PyPDF2 import PdfReader
 
 # Local Application/Library-Specific Imports
 from modules.configs import database_executor, fetch_html_executor, cse_api_call_count, cse_api_call_lock
-from modules.database_handler import Document, process_text_to_db
+from modules.database_handler import Document
 from modules.text_processing import filter_content, split_markdown_chunks
 from modules.webdriver_handler import create_drivers
 
@@ -78,18 +78,7 @@ async def google_search(session, query, api_key, se_id, number_to_return, search
         # Add a delay before returning the results to avoid concurrency issues
         await asyncio.sleep(2)
         return [item.get('link') for item in items]
-
-
-# Manages async operations of scrapping HTML AND creation of database (Not in this module)
-async def fetch_and_process_html(driver, url, process_to_db, semaphore):
-    clean_texts = await fetch_html(driver, url, semaphore)
-    if clean_texts and process_to_db:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(database_executor, process_text_to_db, clean_texts, url)
-
-    # If database is not needed (like scrapping tropical tidbits) just return cleaned html
-    return clean_texts if clean_texts else None
-
+        
 
 # Manages async operations of ONLY scrapping URL
 async def fetch_html(driver, url, semaphore):
@@ -143,7 +132,7 @@ async def fetch_pdf_content(pdf_url, semaphore):
     pdf_start_time = time.time()
     try:
         async with semaphore:  # Use a semaphore to limit concurrency if needed
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300)) as session:
                 # Download the PDF using streaming
                 download_start_time = time.time()
                 async with session.get(pdf_url) as response:

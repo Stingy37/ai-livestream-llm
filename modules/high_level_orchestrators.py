@@ -3,6 +3,7 @@ This module provides functions that coordinate the content generate aspect of th
 (ie. in charge of organizing calls to lower level functions in other modules)
 
 Functions:
+    create_script_handler()
     create_script()
     main()
     async_parallel_run()
@@ -30,7 +31,7 @@ from modules.utils import handle_language
 
 # Sets up variables + environment for create_script, then handles what it returns
 async def create_script_handler(queries_dictionary_list, websites_used,
-                        k_value_similarity_search, final_script_system_instructions, language):
+                        final_script_system_instructions, language):
     (web_scrapper_system_instructions,
      key_messages_system_instructions,
      topic_system_instructions) = await handle_language(language)
@@ -39,22 +40,24 @@ async def create_script_handler(queries_dictionary_list, websites_used,
 
     # Capture the result returned by the async function
     items_generated = loop.run_until_complete(create_script(
-        queries_dictionary_list, websites_used, k_value_similarity_search,
+        queries_dictionary_list, websites_used,
         final_script_system_instructions,
         web_scrapper_system_instructions,
         key_messages_system_instructions,
-        topic_system_instructions
+        topic_system_instructions,
+        k_value_similarity_search = 4
         ))
 
     return items_generated
 
 
 # Uses intermediate answer from "process_urls_and_get_intermediate_answer" to return final products (script + key messages)
-async def create_script(queries_dictionary_list, websites_used, k_value_similarity_search,
+async def create_script(queries_dictionary_list, websites_used,
                final_script_system_instructions,
                web_scrapper_system_instructions,
                key_messages_system_instructions,
-               topic_system_instructions):
+               topic_system_instructions,
+               k_value_similarity_search):
     """
     Creates items to be used in livestream with the results from lower level orchestrators
     """
@@ -114,7 +117,7 @@ async def get_intermediate_answer(query_dict, websites_used, k_value_similarity_
           metadata_placeholder = metadata
       )
 
-      gpt_answer = await return_gpt_answer(formatted_web_scrapper_system_instructions, query)
+      gpt_answer = await return_gpt_answer(formatted_web_scrapper_system_instructions, query_dict['query'])
 
       return {"intermediate_gpt_answer": gpt_answer}
 

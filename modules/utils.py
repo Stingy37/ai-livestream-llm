@@ -62,8 +62,8 @@ def shutdown_executors():
         print(f"{executor} executor shut down.")
     else:
         print("No executor to shut down.")
-    
-    # Reset executor_list for usage later 
+
+    # Reset executor_list for usage later
     executor_list = []
 
 

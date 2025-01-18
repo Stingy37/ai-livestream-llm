@@ -102,7 +102,7 @@ async def save_images_async(total_image_urls):
     tasks = []
 
     # Create an asynchronous session
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300)) as session:
         # Iterate over the image URLs
         for i, url in enumerate(total_image_urls):
             save_path = os.path.join(images_save_directory, f'image_{i}.jpg')
