@@ -1,5 +1,5 @@
 """
-This module provides general helper functions that assist in things like setting up the environment, handling languages, etc. 
+This module provides general helper functions that assist in things like setting up the environment, handling languages, etc.
 
 Functions:
     initialize_environment()
@@ -116,10 +116,10 @@ async def monitor_file_changes(stop_event, file_path, signal_queue):
         except FileNotFoundError:
             print(f"File {file_path} does not exist.")
 
-        await asyncio.sleep(1) # Checks every 1 second 
+        await asyncio.sleep(1) # Checks every 1 second
 
     await asyncio.sleep(1)
-    await signal_queue.put("sentinel_value") # Sentinel value to terminate await change_queue.get() 
+    await signal_queue.put("sentinel_value") # Sentinel value to terminate await change_queue.get()
 
     print(f"End of monitor_file_changes reached for {file_path}")
 

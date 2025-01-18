@@ -16,14 +16,48 @@ from IPython.display import clear_output
 
 # Local Application/Library-Specific Imports
 from modules.audio_handler import play_audio
-from modules.configs import system_instructions_generate_livestream, websites_and_search_queries
+from modules.configs import (
+    google_search_urls_to_return,
+    images_to_return,
+    search_api_key,
+    search_engine_id,
+    system_instructions_generate_livestream,
+    websites_and_search_queries
+)
+from modules.database_handler import create_databases_handler
 from modules.file_manager import download_file_handler, generate_scene_content, save_images_async
-from modules.high_level_orchestrators import create_script
+from modules.high_level_orchestrators import create_script_handler
 from modules.utils import initialize_executors, reset_global_variables, shutdown_executors
 from modules.web_scraper import fetch_images_off_specific_url
 
 
 async def generate_livestream(audio_already_playing):
+    '****************************************************************************************************************************************************'
+    first_database_task = asyncio.create_task(create_databases_handler(
+        search_queries = websites_and_search_queries['tropics_main_search_queries'], # This is also the google search terms, if do_google_search = True
+        search_api_key = search_api_key,
+        search_engine_id = search_engine_id,
+        do_google_search = False,
+        websites_to_use = websites_and_search_queries['tropics_forecast_websites_ph'],
+    ))
+
+    second_database_task = asyncio.create_task(create_databases_handler(
+        search_queries = websites_and_search_queries['city_forecast_queries_one_ph'],
+        search_api_key = search_api_key,
+        search_engine_id = search_engine_id,
+        do_google_search = False,
+        websites_to_use = websites_and_search_queries['city_forecast_websites_one_ph'],
+    ))
+
+    third_database_task = asyncio.create_task(create_databases_handler(
+        search_queries = websites_and_search_queries['city_forecast_queries_two_ph'],
+        search_api_key = search_api_key,
+        search_engine_id = search_engine_id,
+        do_google_search = False,
+        websites_to_use = websites_and_search_queries['city_forecast_websites_two_ph'],
+    ))
+
+
     '****************************************************************************************************************************************************'
     """ controller for downloading images off of tropical tidbits """
 
@@ -31,6 +65,11 @@ async def generate_livestream(audio_already_playing):
     image_scrape_task = asyncio.create_task(fetch_images_off_specific_url(
         url = websites_and_search_queries['tropical_tidbits_storm_url']
     ))
+
+    total_image_urls, (first_queries_list, second_queries_list, third_queries_list) = await asyncio.gather(
+        image_scrape_task,
+        asyncio.gather(first_database_task, second_database_task, third_database_task)
+    )
 
     '****************************************************************************************************************************************************'
     """ controller for generating scripts and items """
@@ -40,46 +79,36 @@ async def generate_livestream(audio_already_playing):
 
     # Creates scripts and items for various scenes
     first_scene_task = asyncio.create_task(
-        create_script(
-            search_queries_list = websites_and_search_queries['tropics_main_search_queries'], # Universal across all languages
-            image_search_queries = None,
-            final_script_system_instructions = system_instructions_generate_livestream['tropics_news_reporter_system_instructions_en'],
-            return_images = False,
-            do_google_search = False,
-            websites_to_use = websites_and_search_queries['tropics_forecast_websites_ph'],
+        create_script_handler(
+            queries_dictionary_list = first_queries_list,
+            websites_used = websites_and_search_queries['tropics_forecast_websites_ph'],
             k_value_similarity_search = 4,
+            final_script_system_instructions = system_instructions_generate_livestream['tropics_news_reporter_system_instructions_en'],
             language = "en" # supported languages: en, cn, vt, jp, ph
             )) # Returns items object that contains script, image urls if enabled, key messages, and topic
 
     second_scene_task = asyncio.create_task(
-        create_script(
-            search_queries_list = websites_and_search_queries['city_forecast_queries_one_ph'], # This is also the google search terms, if do_google_search = True
-            image_search_queries = None,
-            final_script_system_instructions = system_instructions_generate_livestream['city_forecast_system_instructions_ph'],
-            return_images = False,
-            do_google_search = False,
-            websites_to_use = websites_and_search_queries['city_forecast_websites_one_ph'],
+        create_script_handler(
+            queries_dictionary_list = second_queries_list,
+            websites_used = websites_and_search_queries['city_forecast_websites_one_ph'],
             k_value_similarity_search = 4,
+            final_script_system_instructions = system_instructions_generate_livestream['city_forecast_system_instructions_ph'],
             language = "ph" # supported languages: en, cn, vt, jp, ph
             ))
 
     third_scene_task = asyncio.create_task(
-        create_script(
-            search_queries_list = websites_and_search_queries['city_forecast_queries_two_ph'], # This is also the google search terms, if do_google_search = True
-            image_search_queries = None,
-            final_script_system_instructions = system_instructions_generate_livestream['city_forecast_system_instructions_ph'],
-            return_images = False,
-            do_google_search = False,
-            websites_to_use = websites_and_search_queries['city_forecast_websites_two_ph'],
+        create_script_handler(
+            queries_dictionary_list = third_queries_list,
+            websites_used = websites_and_search_queries['city_forecast_websites_two_ph'],
             k_value_similarity_search = 4,
+            final_script_system_instructions = system_instructions_generate_livestream['city_forecast_system_instructions_ph'],
             language = "ph" # supported languages: en, cn, vt, jp, ph
             ))
 
-    initialize_executors() # initializes executors used in n_scene_tasks
+    initialize_executors() # initializes executors used in scene_tasks
     # Execute image and scene tasks concurrently, and handles unpacking them
-    total_image_urls, (first_scene_items, second_scene_items, third_scene_items) = await asyncio.gather(
-        image_scrape_task,
-        asyncio.gather(first_scene_task, second_scene_task, third_scene_task)
+    first_scene_items, second_scene_items, third_scene_items = await asyncio.gather(
+        first_scene_task, second_scene_task, third_scene_task
     )
     shutdown_executors()
 

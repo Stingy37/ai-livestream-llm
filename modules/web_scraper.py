@@ -3,7 +3,7 @@ This module provides functions that related to returning text or images from a c
 
 Functions:
     google_search()
-    
+
     fetch_and_process_html()
     fetch_html()
     fetch_html_sync()

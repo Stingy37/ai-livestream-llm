@@ -3,7 +3,7 @@ This module provides functions related to saving (to colab), loading (from colab
 
 Functions:
     generate_scene_content()
-    
+
     save_stream_items_to_colab()
     save_text_file()
     save_images_async()

@@ -1,10 +1,13 @@
 """
-This module provides functions that handles everything related to interaction vector database
+This module provides functions that handles everything related to interaction with vector database
 
 Classes:
     Document
 
 Functions:
+    create_databases_handler()
+    create_databases_for_query()
+    process_urls_for_database()
     process_html_to_db()
     find_relevant_docs()
     similarity_search_database()
@@ -12,6 +15,7 @@ Functions:
 
 
 # Standard Library Imports
+import asyncio
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -21,7 +25,8 @@ from langchain_community.vectorstores import FAISS
 
 # Local Application/Library-Specific Imports
 from modules.configs import embeddings
-
+from modules.web_scraper import fetch_and_process_html, google_search
+from modules.webdriver_handler import create_drivers
 
 # Aligned with langchain's document class, instances of this class used to create database
 class Document:
@@ -30,8 +35,62 @@ class Document:
         self.metadata = metadata
         self.id = id or uuid.uuid4()
 
+# Used to create a database for each scene
+async def create_databases_handler(search_queries, search_api_key, search_engine_id, do_google_search, websites_to_use):
+    """
+    Scrapes the URLs and initializes the vector databases.
+    Returns a list of databases corresponding to each query.
+    """
+    tasks = []
+    for query in search_queries.values():
+        tasks.append(
+            create_databases_for_query( # returns a dictionary containing query + database_list as keys
+                query,
+                search_api_key,
+                search_engine_id,
+                do_google_search,
+                websites_to_use,
+            )
+        )
+    queries_dictionary_list = await asyncio.gather(*tasks)
+    return queries_dictionary_list
 
-def process_html_to_db(clean_texts, url):
+
+async def create_databases_for_query(query, search_api_key, search_engine_id, do_google_search, websites_to_use):
+
+    '******************************************** Handle whether or not Google Search is used *******************************************************'
+    print("do_google_search value for ", query, ": ", do_google_search)
+
+    # Determine how much drivers needed to scrape websites based on amount of URLs used
+    if do_google_search:
+        drivers_to_create = google_search_urls_to_return
+    else:
+        drivers_to_create = len(websites_to_use)
+
+    driver_list = await create_drivers(drivers_to_create) # One driver created for every url
+
+    '***************************************** This uses the Google CSE Api to return website URLs **************************************************'
+
+    if do_google_search: # Checks to see whether user wants to do google search or has predetermined URLs
+        async with aiohttp.ClientSession() as session:
+            urls_task = google_search(session, query, search_api_key, search_engine_id, number_to_return = google_search_urls_to_return, search_images = False)
+            urls = await urls_task
+    else:
+        urls = websites_to_use # Assign urls directly without doing google search
+
+    '********************************** scraps website URLs and returns a list containing databases for each url ***********************************'
+
+    semaphore = asyncio.Semaphore(100) # Limit the number of concurrent tasks ONLY for PDFs - set high number to disable it
+
+    # Create async tasks for fetching and processing HTML
+    tasks = [fetch_and_process_html(driver, url, process_to_db=True, semaphore=semaphore) for driver, url in zip(driver_list, urls)]
+    database_list = await asyncio.gather(*tasks)
+
+    return {'query': query, 'database_list': database_list}
+
+
+# Takes in clean_text (filtered markdown) and constructs database from it
+def process_text_to_db(clean_texts, url):
     database_start_time = time.time()
 
     metadata = {'website': url}
