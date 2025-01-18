@@ -8,7 +8,7 @@ Functions:
     create_databases_handler()
     create_databases_for_query()
     process_urls_for_database()
-    process_html_to_db()
+    process_text_to_db()
     find_relevant_docs()
     similarity_search_database()
 """
@@ -81,6 +81,8 @@ async def create_databases_for_query(query, search_api_key, search_engine_id, do
     '********************************** scraps website URLs and returns a list containing databases for each url ***********************************'
 
     semaphore = asyncio.Semaphore(100) # Limit the number of concurrent tasks ONLY for PDFs - set high number to disable it
+
+    print(f"Amount of drivers to scrap {len(urls)} urls: {len(driver_list)}")
 
     # Create async tasks for fetching and processing HTML
     tasks = [fetch_and_process_html(driver, url, process_to_db=True, semaphore=semaphore) for driver, url in zip(driver_list, urls)]

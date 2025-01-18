@@ -92,7 +92,7 @@ async def async_parallel_run(queries_dictionary_list, websites_used, k_value_sim
     tasks = []
 
     for query_dict in queries_dictionary_list:
-        print(f"added a new get_intermediate_answer task for {query_dict['query']}'s databases")
+        print(f"added a new get_intermediate_answer task for [{query_dict['query']}]'s databases")
         tasks.append(get_intermediate_answer(query_dict, websites_used, k_value_similarity_search, web_scrapper_system_instructions))
 
     print("executing tasks")
@@ -104,7 +104,7 @@ async def async_parallel_run(queries_dictionary_list, websites_used, k_value_sim
 
 
 # Handles image urls and returns intermediate ChatGPT answer for usage later (Runs for each query)
-async def get_intermediate_answer(query_dict, websites_used, k_value_similarity_search, web_scrapper_system_instructions, database_list):
+async def get_intermediate_answer(query_dict, websites_used, k_value_similarity_search, web_scrapper_system_instructions):
 
       relevant_information = await find_relevant_docs(query_dict['query'], query_dict['database_list'], len(websites_used), num_of_docs_to_return = k_value_similarity_search)
       page_content, metadata = relevant_information

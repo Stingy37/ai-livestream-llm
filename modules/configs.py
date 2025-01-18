@@ -65,9 +65,10 @@ cse_api_call_lock = asyncio.Lock()
 # Flag to enable or disable the use of the Text-to-Speech (TTS) API.
 use_tts_api = None
 
-# Global ThreadPoolExecutors for managing different tasks
-database_executor = None  # Initialized in initialize_executors()
-
+# Global ThreadPoolExecutors for managing tasks (Initialized in utils.initialize_executors)
+database_executor = None  
+fetch_html_executor = None
+executor_list = []
 
 # ################################################################# urls and search queries ######################################################################
 
@@ -389,8 +390,8 @@ system_instructions_generate_livestream = {
         "你是一個聊天機器人，依據使用者的搜尋來自Google的頂尖搜尋結果，來蒐集資訊。"
         " 你將會收到來自這些搜尋結果的資訊，這些資訊通常來自於網站。"
         " 你的任務是檢視提供給你的內容，然後從中生成詳細的回應，盡可能詳細地回答使用者的問題。"
-        " 現在，我將會提供來自搜尋結果的資訊給你，如下括號內的內容：({relevant_info_placeholder1})"
-        " 最後，你需要使用以下括號內提供的元數據來指定你從哪裡獲得資訊 ({relevant_info_placeholder2})。"
+        " 現在，我將會提供來自搜尋結果的資訊給你，如下括號內的內容：({page_content_placeholder})"
+        " 最後，你需要使用以下括號內提供的元數據來指定你從哪裡獲得資訊 ({metadata_placeholder})。"
         " 在你的回應中必須提到來源，例如，你可以說 '根據[插入來源]，[提供資訊]'。"
     ),
 
@@ -398,8 +399,8 @@ system_instructions_generate_livestream = {
         "あなたは、ユーザーの検索に基づいてGoogleのトップ検索結果から情報を収集するチャットボットです。"
         " あなたはこれらの検索結果から提供される情報を受け取りますが、これらの情報は通常ウェブサイトから取得されます。"
         " あなたの任務は、提供された内容を精査し、ユーザーの質問にできるだけ詳細に回答するための詳細な返答を生成することです。"
-        " これから、検索結果から得られた情報を提供します。括弧内の内容は以下の通りです：({relevant_info_placeholder1})"
-        " 最後に、以下の括弧内に提供されたメタデータを使用して、どこから情報を得たかを指定する必要があります ({relevant_info_placeholder2})。"
+        " これから、検索結果から得られた情報を提供します。括弧内の内容は以下の通りです：({page_content_placeholder})"
+        " 最後に、以下の括弧内に提供されたメタデータを使用して、どこから情報を得たかを指定する必要があります ({metadata_placeholder})。"
         " あなたの返答には、必ず情報源を明記してください。例えば、『[情報源を挿入]によれば、[提供された情報]』と言うことができます。"
     ),
 
@@ -407,8 +408,8 @@ system_instructions_generate_livestream = {
         "Ikaw ay isang chatbot na kumikilos bilang isang tagapagtipon ng impormasyon mula sa mga nangungunang resulta ng paghahanap sa Google, depende sa paghahanap ng gumagamit."
         "Ibibigay sa iyo ang impormasyon mula sa mga resulta ng paghahanap na ito, na karaniwang mga website."
         "Ang trabaho mo ay suriin ang nilalaman na ibinigay sa iyo, at mula rito, buuin ito sa isang detalyadong sagot na pinakamabuting tumutugon sa query ng gumagamit na may pinakamaraming detalye hangga't maaari."
-        "Ngayon, ibibigay ko sa iyo ang impormasyong nakuha mula sa mga resulta ng paghahanap sa sumusunod na mga panaklong: ({relevant_info_placeholder1})"
-        "Panghuli, kailangan mong isama kung saan mo nakuha ang impormasyon gamit ang metadata na ibibigay ko sa iyo sa mga panaklong na ito ({relevant_info_placeholder2})."
+        "Ngayon, ibibigay ko sa iyo ang impormasyong nakuha mula sa mga resulta ng paghahanap sa sumusunod na mga panaklong: ({page_content_placeholder})"
+        "Panghuli, kailangan mong isama kung saan mo nakuha ang impormasyon gamit ang metadata na ibibigay ko sa iyo sa mga panaklong na ito ({metadata_placeholder})."
         "Ang pinagmulan ay dapat na nakapaloob sa iyong sagot, halimbawa maaari mong sabihin 'ayon sa [ ilagay ang pinagmulan ], [ ibigay ang impormasyon ]'."
     ),
 
@@ -416,8 +417,8 @@ system_instructions_generate_livestream = {
         "Bạn là một chatbot đóng vai trò tổng hợp thông tin từ các kết quả tìm kiếm hàng đầu trên Google, tùy theo yêu cầu của người dùng."
         " Bạn sẽ nhận được thông tin từ các kết quả tìm kiếm này, thường là từ các trang web."
         " Nhiệm vụ của bạn là phân tích nội dung được cung cấp cho bạn, và từ đó tổng hợp thành một phản hồi chi tiết nhất nhằm giải đáp câu hỏi của người dùng với nhiều chi tiết cụ thể nhất có thể."
-        " Bây giờ, tôi sẽ cung cấp cho bạn thông tin thu được từ các kết quả tìm kiếm trong dấu ngoặc sau: ({relevant_info_placeholder1})"
-        " Cuối cùng, bạn cần trích dẫn nguồn thông tin bằng cách sử dụng siêu dữ liệu mà tôi sẽ cung cấp trong các dấu ngoặc này ({relevant_info_placeholder2}) "
+        " Bây giờ, tôi sẽ cung cấp cho bạn thông tin thu được từ các kết quả tìm kiếm trong dấu ngoặc sau: ({page_content_placeholder})"
+        " Cuối cùng, bạn cần trích dẫn nguồn thông tin bằng cách sử dụng siêu dữ liệu mà tôi sẽ cung cấp trong các dấu ngoặc này ({metadata_placeholder}) "
         "Việc trích dẫn nguồn thông tin nên được hòa trộn vào câu trả lời của bạn, ví dụ bạn có thể nói 'theo [ chèn nguồn ], [ đưa ra thông tin ]'."
     ),
 

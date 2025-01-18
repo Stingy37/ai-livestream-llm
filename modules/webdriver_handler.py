@@ -58,5 +58,11 @@ def initialize_chrome_driver():
 async def create_drivers(num_of_drivers): # In most cases num_of_drivers = urls_to_return
     loop = asyncio.get_event_loop()
     with ThreadPoolExecutor() as executor:
-        drivers = await loop.run_in_executor(executor, lambda: [initialize_chrome_driver() for _ in range(num_of_drivers)])
+        # Create an array of async tasks, each of which calls initialize_chrome_driver() in a worker
+        tasks = [
+            loop.run_in_executor(executor, initialize_chrome_driver)
+            for _ in range(num_of_drivers)
+        ]
+        # Wait on them all
+        drivers = await asyncio.gather(*tasks)
     return drivers

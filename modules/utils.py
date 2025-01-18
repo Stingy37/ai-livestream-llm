@@ -25,7 +25,9 @@ import nest_asyncio
 
 # Local Application/Library-Specific Imports
 from modules.configs import (
+    fetch_html_executor,
     database_executor,
+    executor_list,
     cse_api_call_count,
     system_instructions_generate_livestream
 )
@@ -43,21 +45,26 @@ def initialize_environment():
 
 
 def initialize_executors():
-    global database_executor
+    global database_executor, fetch_html_executor, executor_list
 
-    # Global ThreadPoolExecutors for managing different tasks
-    database_executor = ThreadPoolExecutor(max_workers=10)
+    # Global ThreadPoolExecutors for managing tasks
+    database_executor = ThreadPoolExecutor(max_workers=15)
+    fetch_html_executor = ThreadPoolExecutor(max_workers=15)
 
+    executor_list = [database_executor, fetch_html_executor]
 
 def shutdown_executors():
-    global database_executor
+    global executor_list
 
-    if database_executor:
+    for executor in executor_list:
         # Shutdown the ThreadPoolExecutor, waiting for currently running tasks to complete
-        database_executor.shutdown(wait=True)
-        print("Database executor shut down.")
+        executor.shutdown(wait=True)
+        print(f"{executor} executor shut down.")
     else:
-        print("No database executor to shut down.")
+        print("No executor to shut down.")
+    
+    # Reset executor_list for usage later 
+    executor_list = []
 
 
 # Resets counters so that they correctly function when create_script is reused

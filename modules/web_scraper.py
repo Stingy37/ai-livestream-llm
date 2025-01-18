@@ -28,8 +28,8 @@ from langchain_community.document_transformers import MarkdownifyTransformer
 from PyPDF2 import PdfReader
 
 # Local Application/Library-Specific Imports
-from modules.configs import database_executor, cse_api_call_count, cse_api_call_lock
-from modules.database_handler import Document, process_html_to_db
+from modules.configs import database_executor, fetch_html_executor, cse_api_call_count, cse_api_call_lock
+from modules.database_handler import Document, process_text_to_db
 from modules.text_processing import filter_content, split_markdown_chunks
 from modules.webdriver_handler import create_drivers
 
@@ -85,7 +85,7 @@ async def fetch_and_process_html(driver, url, process_to_db, semaphore):
     clean_texts = await fetch_html(driver, url, semaphore)
     if clean_texts and process_to_db:
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(database_executor, process_html_to_db, clean_texts, url)
+        return await loop.run_in_executor(database_executor, process_text_to_db, clean_texts, url)
 
     # If database is not needed (like scrapping tropical tidbits) just return cleaned html
     return clean_texts if clean_texts else None
@@ -107,7 +107,7 @@ async def fetch_html(driver, url, semaphore):
     # If URL is a website link
     else:
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, fetch_html_sync, driver, url)
+        return await loop.run_in_executor(fetch_html_executor, fetch_html_sync, driver, url)
 
 
 # Scraps HTML from website using webdriver and converts HTML to markdown
