@@ -108,11 +108,11 @@ def process_text_to_db(clean_texts, url):
 
 
 # Gets the most relevant passages from the constructed vector database
-async def find_relevant_docs(query, database_list, urls_used, num_of_docs_to_return):
+async def find_relevant_docs(query, database_list, max_workers, num_of_docs_to_return):
     metadata = []
     relevant_page_content = []
 
-    with ThreadPoolExecutor(max_workers=urls_used) as executor:
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(similarity_search_database, query, database, num_of_docs_to_return) for database in database_list]
         for future in as_completed(futures):
             result = future.result()
