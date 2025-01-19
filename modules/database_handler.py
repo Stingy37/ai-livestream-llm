@@ -9,7 +9,6 @@ Functions:
     create_databases_for_query()
     process_urls_for_database()
     process_text_to_db()
-    fetch_and_process_html()
     find_relevant_docs()
     similarity_search_database()
 """
@@ -25,7 +24,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from langchain_community.vectorstores import FAISS
 
 # Local Application/Library-Specific Imports
-from modules.configs import database_executor, embeddings, google_search_urls_to_return
+from modules.configs import embeddings
+from modules.web_scraper import fetch_and_process_html, google_search
 from modules.webdriver_handler import create_drivers
 
 # Aligned with langchain's document class, instances of this class used to create database
@@ -105,16 +105,6 @@ def process_text_to_db(clean_texts, url):
 
     return faiss_db
 
-
-# Manages async operations of scrapping HTML AND creation of database 
-async def fetch_and_process_html(driver, url, process_to_db, semaphore):
-    clean_texts = await fetch_html(driver, url, semaphore)
-    if clean_texts and process_to_db:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(database_executor, process_text_to_db, clean_texts, url)
-
-    # If database is not needed (like scrapping tropical tidbits) just return cleaned html
-    return clean_texts if clean_texts else None
 
 
 # Gets the most relevant passages from the constructed vector database

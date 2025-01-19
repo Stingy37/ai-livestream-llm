@@ -72,7 +72,7 @@ async def generate_livestream(audio_already_playing):
         ) for scene in scenes_config
     ]
 
-    # Create an async task to scrape the specific storm URL 
+    # Create an async task to scrape the specific storm URL
     image_scrape_task = asyncio.create_task(fetch_images_off_specific_url(
         url = tropical_tidbits_storm_url
     ))
