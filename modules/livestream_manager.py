@@ -15,6 +15,8 @@ import asyncio
 from IPython.display import clear_output
 
 # Local Application/Library-Specific Imports
+import modules.configs as configs # Need to import module directly to use use_tts_api as flag in other modules
+
 from modules.audio_handler import play_audio
 from modules.configs import (
     google_search_urls_to_return,
@@ -22,6 +24,7 @@ from modules.configs import (
     search_api_key,
     search_engine_id,
     system_instructions_generate_livestream,
+    use_tts_api,
     websites_and_search_queries
 )
 from modules.database_handler import create_databases_handler
@@ -131,15 +134,14 @@ async def generate_livestream(audio_already_playing):
 
 
 async def controller_play_audio_and_download_handler(scenes_items, initial_previous_task):
-    global use_tts_api
     print("Entering 'controller_play_audio_and_download_handler'")
 
     # First iteration: Returns 'final_audio_task', the last task in the sequence to be used as a param in future iterations
-    use_tts_api = True
+    configs.use_tts_api = True
     final_audio_task = await controller_play_audio_and_download(
         scenes_items, initial_previous_task
     )
-    use_tts_api = False
+    configs.use_tts_api = False
 
     # Play i more iterations determined by range() and handles updating scene_items on last iteration
     total_iterations = 2

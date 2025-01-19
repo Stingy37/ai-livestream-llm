@@ -11,7 +11,9 @@ import time
 from IPython.display import Audio, display
 
 # Local Application/Library-Specific Imports
-from modules.configs import client, use_tts_api
+import modules.configs as configs # Must import entire module to use use_tts_api as flag
+
+from modules.configs import client
 from pydub import AudioSegment
 
 
@@ -66,7 +68,7 @@ async def generate_audio_parts(part1, part2, file_name):
 
 async def generate_voice_recording(message, file_name):
     # Check if the voice recording already exists in Google Colab's file system
-    if use_tts_api == False:
+    if configs.use_tts_api == False:
         print(f"File '{file_name}' already exists. Skipping TTS API call.")
         return
 

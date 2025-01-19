@@ -29,7 +29,6 @@ from PyPDF2 import PdfReader
 
 # Local Application/Library-Specific Imports
 from modules.configs import database_executor, fetch_html_executor, cse_api_call_count, cse_api_call_lock
-from modules.database_handler import Document, process_text_to_db
 from modules.text_processing import filter_content, split_markdown_chunks
 from modules.webdriver_handler import create_drivers
 
@@ -82,6 +81,8 @@ async def google_search(session, query, api_key, se_id, number_to_return, search
 
 # Manages async operations of scrapping HTML AND creation of database (Not in this module)
 async def fetch_and_process_html(driver, url, process_to_db, semaphore):
+    from modules.database_handler import process_text_to_db # TEMPORARY FIX - REFACTOR CODE LATER
+    
     clean_texts = await fetch_html(driver, url, semaphore)
     if clean_texts and process_to_db:
         loop = asyncio.get_event_loop()
@@ -112,6 +113,8 @@ async def fetch_html(driver, url, semaphore):
 
 # Scraps HTML from website using webdriver and converts HTML to markdown
 def fetch_html_sync(driver, url):
+    from modules.database_handler import Document # TEMPORARY FIX - REFACTOR CODE LATER
+
     try:
         print("scrapping HTML for:", url)
 
