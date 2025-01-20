@@ -66,9 +66,9 @@ async def generate_audio_parts(part1, part2, file_name):
     )
 
 
-async def generate_voice_recording(message, file_name):
+async def generate_voice_recording(message, file_name, tts_flag_override = False):
     # Check if the voice recording already exists in Google Colab's file system
-    if configs.use_tts_api == False:
+    if configs.use_tts_api == False and tts_flag_overide == False:
         print(f"File '{file_name}' already exists. Skipping TTS API call.")
         return
 
