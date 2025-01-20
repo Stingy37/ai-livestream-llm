@@ -14,6 +14,9 @@ Functions:
 import asyncio
 from IPython.display import clear_output
 
+# Third-Party Library Imports
+from mutagen.mp3 import MP3
+
 # Local Application/Library-Specific Imports
 import modules.configs as configs # Import 'configs' module directly to change global states
 
@@ -86,7 +89,7 @@ async def generate_livestream(audio_already_playing):
         asyncio.gather(*database_tasks)
     )
     configs.database_results = database_results 
-    
+
     '****************************************************************************************************************************************************'
     """ controller for generating scripts and items """
 
@@ -197,30 +200,48 @@ async def controller_play_audio_and_download(scenes_items, initial_previous_task
 
 
 async def process_scene(scene_items, audio_file_name, previous_audio_task=None):
-    # If there was a previous audio playing, don't wait for it to finish yet
-    if previous_audio_task:
-        # Start generating the next scene content while the previous audio plays
-        generate_scene_task = asyncio.create_task(generate_scene_content(
-            items = scene_items,
-            audio_file_name = audio_file_name
-        ))
+    # Check for YouTube interactivity audio before proceeding
+    if os.path.exists('combined_output_youtube_interactivity_audio.mp3'):
+        print("YouTube interactivity audio detected. Playing before processing the next scene.")
 
-        # Wait for both tasks concurrently (previous audio + generating new scene)
+        if previous_audio_task:  # If previous audio is already playing
+            await previous_audio_task
+
+        youtube_audio_task = asyncio.create_task(play_audio({
+            'name': 'combined_output_youtube_interactivity_audio.mp3',
+            'duration_seconds': MP3('combined_output_youtube_interactivity_audio.mp3').info.length
+        }))
+        generate_scene_task = asyncio.create_task(generate_scene_content(
+            items=scene_items,
+            audio_file_name=audio_file_name
+        ))
+        _, (saved_stream_items, audio_info) = await asyncio.gather(
+            youtube_audio_task,
+            generate_scene_task
+        )
+        os.remove('combined_output_youtube_interactivity_audio.mp3')
+        print("YouTube interactivity audio played and removed.")
+
+    elif previous_audio_task:
+        # If previous audio is already playing and no YouTube interactivity audio
+        generate_scene_task = asyncio.create_task(generate_scene_content(
+            items=scene_items,
+            audio_file_name=audio_file_name
+        ))
         _, (saved_stream_items, audio_info) = await asyncio.gather(
             previous_audio_task,
             generate_scene_task
         )
     else:
-        # If there's no previous audio, just generate the scene content
+        # If there's no previous audio and no YouTube interactivity, just generate the scene content
         saved_stream_items, audio_info = await generate_scene_content(
-            items = scene_items,
-            audio_file_name = audio_file_name
+            items=scene_items,
+            audio_file_name=audio_file_name
         )
-
     # Download the items to the local computer
     await download_file_handler(saved_stream_items)
 
     # Start playing the audio for the current scene
     play_audio_task = asyncio.create_task(play_audio(audio_info))
 
-    return play_audio_task # Passed into this function again as previous_audio_task
+    return play_audio_task  # Passed into this function again as previous_audio_task

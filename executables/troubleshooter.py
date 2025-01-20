@@ -31,7 +31,6 @@ def get_version(cmd, flag):
 # print all installed package versions
 def check_versions():
     import importlib.metadata
-    import subprocess
 
     versions = {}
     packages = {
@@ -50,6 +49,7 @@ def check_versions():
         'google-chrome-stable': 'google-chrome-stable --version',
         'chromedriver': 'chromedriver --version',
         'ffmpeg': 'ffmpeg -version'
+        'mutagen': 'mutagen'
     }
 
 
