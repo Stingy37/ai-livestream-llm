@@ -15,7 +15,7 @@ import asyncio
 from IPython.display import clear_output
 
 # Local Application/Library-Specific Imports
-import modules.configs as configs # Need to import module directly to use use_tts_api as flag in other modules
+import modules.configs as configs # Import 'configs' module directly to change global states
 
 from modules.audio_handler import play_audio
 from modules.configs import (
@@ -66,11 +66,11 @@ async def generate_livestream(audio_already_playing):
     database_tasks = [
         asyncio.create_task(
             create_databases_handler(
-                search_queries=scene['search_queries'],
-                search_api_key=search_api_key,
-                search_engine_id=search_engine_id,
-                do_google_search=False,
-                websites_to_use=scene['websites'],
+                search_queries = scene['search_queries'],
+                search_api_key = search_api_key,
+                search_engine_id = search_engine_id,
+                do_google_search = False,
+                websites_to_use = scene['websites'],
             )
         ) for scene in scenes_config
     ]
@@ -80,11 +80,13 @@ async def generate_livestream(audio_already_playing):
         url = tropical_tidbits_storm_url
     ))
 
+    # Process results
     total_image_urls, (database_results) = await asyncio.gather(
         image_scrape_task,
         asyncio.gather(*database_tasks)
     )
-
+    configs.database_results = database_results 
+    
     '****************************************************************************************************************************************************'
     """ controller for generating scripts and items """
 
@@ -98,10 +100,10 @@ async def generate_livestream(audio_already_playing):
     scene_tasks = [
         asyncio.create_task(
             create_script_handler(
-                queries_dictionary_list=db_result,  # Corresponding database result
-                websites_used=scene['websites'],
-                final_script_system_instructions=scene['system_instructions'],
-                language=scene['language'],
+                queries_dictionary_list = db_result,  # Corresponding database result
+                websites_used = scene['websites'],
+                final_script_system_instructions = scene['system_instructions'],
+                language = scene['language'],
             )
         )
         for scene, db_result in zip(scenes_config, database_results)

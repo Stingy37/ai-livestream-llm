@@ -62,10 +62,11 @@ async def create_script(queries_dictionary_list, websites_used,
     Creates items to be used in livestream with the results from lower level orchestrators
     """
 
-    results = asyncio.run(async_parallel_run(queries_dictionary_list, websites_used,
-                                             k_value_similarity_search,
-                                             web_scrapper_system_instructions,
-                                             ))
+    results = asyncio.run(async_parallel_run(
+        queries_dictionary_list, websites_used,
+        k_value_similarity_search,                 
+        web_scrapper_system_instructions,      
+        ))
 
     '****************************************************************************************************************************************************'
 
@@ -109,7 +110,12 @@ async def async_parallel_run(queries_dictionary_list, websites_used, k_value_sim
 # Handles image urls and returns intermediate ChatGPT answer for usage later (Runs for each query)
 async def get_intermediate_answer(query_dict, websites_used, k_value_similarity_search, web_scrapper_system_instructions):
 
-      relevant_information = await find_relevant_docs(query_dict['query'], query_dict['database_list'], len(websites_used), num_of_docs_to_return = k_value_similarity_search)
+      relevant_information = await find_relevant_docs(
+          query_dict['query'], 
+          query_dict['database_list'], 
+          len(websites_used), 
+          num_of_docs_to_return = k_value_similarity_search
+          )
       page_content, metadata = relevant_information
 
       formatted_web_scrapper_system_instructions = web_scrapper_system_instructions.format(

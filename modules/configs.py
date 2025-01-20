@@ -35,6 +35,9 @@ openai_api_key = userdata.get('openai_api_key')
 search_api_key = userdata.get('search_api_key')
 search_engine_id = userdata.get('search_engine_id')
 
+# Empty list to store database_results when generated
+database_results = []
+
 # OpenAI Configuration
 client = AsyncOpenAI(api_key=openai_api_key)
 embeddings = OpenAIEmbeddings(model="text-embedding-3-large", openai_api_key=openai_api_key)
@@ -65,7 +68,7 @@ cse_api_call_lock = asyncio.Lock()
 # Flag to enable or disable the use of the Text-to-Speech (TTS) API.
 use_tts_api = None
 
-# Global ThreadPoolExecutors for managing tasks (Initialized in utils.initialize_executors)
+# Global ThreadPoolExecutors for managing tasks (Initialized in initialize_executors)
 database_executor = None
 fetch_html_executor = None
 executor_list = []

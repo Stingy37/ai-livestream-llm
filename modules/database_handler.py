@@ -108,7 +108,7 @@ def process_text_to_db(clean_texts, url):
 
 
 # Gets the most relevant passages from the constructed vector database
-async def find_relevant_docs(query, database_list, max_workers, num_of_docs_to_return):
+async def find_relevant_docs(query, database_list, max_workers = 10, num_of_docs_to_return = 2): # Default values for last 2 parameters
     metadata = []
     relevant_page_content = []
 

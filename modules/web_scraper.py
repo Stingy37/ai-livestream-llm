@@ -82,7 +82,7 @@ async def google_search(session, query, api_key, se_id, number_to_return, search
 # Manages async operations of scrapping HTML AND creation of database (Not in this module)
 async def fetch_and_process_html(driver, url, process_to_db, semaphore):
     from modules.database_handler import process_text_to_db # TEMPORARY FIX - REFACTOR CODE LATER
-    
+
     clean_texts = await fetch_html(driver, url, semaphore)
     if clean_texts and process_to_db:
         loop = asyncio.get_event_loop()
