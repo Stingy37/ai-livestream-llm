@@ -17,7 +17,7 @@ from modules.configs import client
 from pydub import AudioSegment
 
 
-async def generate_audio(generated_items, file_name):
+async def generate_audio(generated_items, file_name, tts_flag_override = False):
   generate_audio_start = time.time()
 
   # Gets script from generated_items
@@ -32,7 +32,7 @@ async def generate_audio(generated_items, file_name):
   print(part2)
 
   # Generates parts (adds some silence at the start)
-  await generate_audio_parts(part1, part2, file_name)
+  await generate_audio_parts(part1, part2, file_name, tts_flag_override)
 
   # Load the audio files
   audio_part1, audio_part2, audio_part3 = await load_audio_files(file_name)
@@ -58,17 +58,17 @@ async def generate_audio(generated_items, file_name):
 
 
 # Generates 3 mp3 files for use in load_audio_files
-async def generate_audio_parts(part1, part2, file_name):
+async def generate_audio_parts(part1, part2, file_name, tts_flag_override):
     await asyncio.gather(
-        generate_voice_recording(part1, f"output_part1_{file_name}.mp3"),
-        generate_voice_recording(part2, f"output_part2_{file_name}.mp3"),
+        generate_voice_recording(part1, f"output_part1_{file_name}.mp3", tts_flag_override),
+        generate_voice_recording(part2, f"output_part2_{file_name}.mp3", tts_flag_override),
         generate_empty_audio(file_name)
     )
 
 
-async def generate_voice_recording(message, file_name, tts_flag_override = False):
+async def generate_voice_recording(message, file_name, tts_flag_override):
     # Check if the voice recording already exists in Google Colab's file system
-    if configs.use_tts_api == False and tts_flag_overide == False:
+    if configs.use_tts_api == False and tts_flag_override == False:
         print(f"File '{file_name}' already exists. Skipping TTS API call.")
         return
 
