@@ -108,24 +108,24 @@ def read_file(file_path):
 # Monitor a certain file for changes, if so, send a signal via adding to queue and keep monitoring
 async def monitor_file_changes(stop_event, file_path, signal_queue):
     last_mod_time = None
-    try:
-        await signal_queue.put(file_path)  # Send a initial signal so that initial contents of file are written in create_current_topic_list
-        # As long as stop_event references same asyncio.event object, setting it anywhere will cause stop_event.is_set() to be true
-        while not stop_event.is_set():
+    await signal_queue.put(file_path)
+
+    while not stop_event.is_set():
+        try:
             current_mod_time = os.path.getmtime(file_path)
 
             if last_mod_time is None:
                 last_mod_time = current_mod_time
             elif current_mod_time != last_mod_time:
                 last_mod_time = current_mod_time
-                await signal_queue.put(file_path) # Do something when item is added to queue
+                await signal_queue.put(file_path)  # Do something when item is added to queue
 
-            await asyncio.sleep(1) # Checks every 1 second
+        except FileNotFoundError:
+            pass
 
-    except FileNotFoundError:
-          print(f"File {file_path} does not exist.")
+        await asyncio.sleep(1)  # Checks every 1 second
 
-    await asyncio.sleep(1)
+    await asyncio.sleep(1) 
     await signal_queue.put("sentinel_value") # Sentinel value to terminate await change_queue.get()
 
     print(f"End of monitor_file_changes reached for {file_path}")

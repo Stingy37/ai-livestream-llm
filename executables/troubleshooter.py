@@ -48,7 +48,7 @@ def check_versions():
         'rsync': 'rsync --version',
         'google-chrome-stable': 'google-chrome-stable --version',
         'chromedriver': 'chromedriver --version',
-        'ffmpeg': 'ffmpeg -version'
+        'ffmpeg': 'ffmpeg -version',
         'mutagen': 'mutagen'
     }
 
