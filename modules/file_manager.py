@@ -33,10 +33,12 @@ from modules.audio_handler import generate_audio
 from modules.configs import tt_scrap_headers
 
 
-async def generate_scene_content(items, audio_file_name):
+async def generate_scene_content(items, language, audio_file_name):
     """Function to generate audio and save items for a scene."""
+    voice = 'fable' if language == 'aus' else 'shimmer' # TEMP, consolidate language settings into global config later
+
     save_stream_items_task = asyncio.create_task(save_stream_items_to_colab(items))
-    generate_audio_task = asyncio.create_task(generate_audio(items, file_name=audio_file_name))
+    generate_audio_task = asyncio.create_task(generate_audio(items, voice, file_name=audio_file_name))
 
     # Run both tasks concurrently and unpack the results
     saved_stream_items, audio_info = await asyncio.gather(save_stream_items_task, generate_audio_task)

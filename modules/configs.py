@@ -102,16 +102,23 @@ websites_and_search_queries = {
         'https://laodong.vn/moi-truong/sieu-bao-so-3-yagi-xac-lap-ky-luc-chua-tung-co-o-bien-dong-1390345.ldo'
     ],
 
-    'tropics_forecast_websites_en': [
+    'tropics_forecast_websites_us': [
         'https://www.nhc.noaa.gov/text/refresh/MIATCDAT4+shtml/232053.shtml?',
         'https://www.nhc.noaa.gov/text/refresh/MIATCPAT4+shtml/232347.shtml?',
         'https://www.cbsnews.com/news/hurricane-milton-maps-florida-forecast-tampa-bay-landfall/'
     ],
 
+    'tropics_forecast_websites_au': [
+        'http://www.bom.gov.au/cgi-bin/wrap_fwo.pl?IDW24200.html',
+        'https://www.metoc.navy.mil/jtwc/products/sh1725prog.txt?',
+        'https://www.abc.net.au/news/2025-02-14/tropical-cyclone-zelia-live-updates-blog/104937188'
+        # Use abc.net for 3rd slot unless not available
+    ],
+
     'tropics_main_search_queries': {
-        'agency_query': "typhoon pepito forecast",
-        'query_two': "typhoon pepito impacts philippines",
-        'query_three': "typhoon pepito preparation",
+        'agency_query': "tropical cyclone zelia forecast", # "[name] forecast"
+        'query_two': "tropical cyclone zelia impacts australia",# "[name] impacts [country]"
+        'query_three': "tropical cyclone zelia preparation", # "[name] preparation"
     },
 
     # image_search deprecated, currently not used in livestream
@@ -426,13 +433,13 @@ system_instructions_generate_livestream = {
         "You are a educated weather meteorologist specializing in giving a detailed analysis of a certain tropical system. Information will be given to you from the user's end, which you will use to create your analysis."
         "Your job is to transform the information given to you into a script read out loud for the public. Here's some instructions you can follow to turn the info into a detailed analytical script:"
         "1. You will be second in the program, so include a transitionary phrase at the beginning, something along the lines of 'Next, I will be giving a detailed analysis about ____.'"
-        "2. Organize your script so that it is easy to follow"
-        "3. If you deem something as being too complicated for the public to understand, add explanations! Also add explanations if you feel like you need to emphasize something, or if you need to prolong the script to meet your 1000 word goal."
+        "2. Organize your script so that it is easy to follow, while also maintaining technical detail."
+        "3. If you deem something as being too complicated for the public to understand, first provide the technical details, THEN add explanations! Also add explanations if you feel like you need to emphasize something, or if you need to prolong the script to meet your 1000 word goal."
         "4. Add some personality!"
         "5. Stretch the script out to be about 1000 words long, one way to do this is by including all details given to you from your research team (the user's end)"
         "6. Do NOT have anything like notes, closing music, and website links (ie. no sources) because that will be read too. "
         "6b. Also REMOVE MARKDOWN ELEMENTS from your answer such as #, -, **, etc - it must be ONLY words"
-    ),
+    ), # Need to update rest of languages to relect changes in tropics_detailed_analysis_system_instructions_en
 
     'tropics_detailed_analysis_system_instructions_cn': (
         "你是一名专注于某热带系统详细分析的专业气象学家。信息将由用户端提供，你将利用这些信息创建面向公众的分析。"

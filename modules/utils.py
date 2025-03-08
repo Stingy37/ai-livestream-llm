@@ -125,7 +125,7 @@ async def monitor_file_changes(stop_event, file_path, signal_queue):
 
         await asyncio.sleep(1)  # Checks every 1 second
 
-    await asyncio.sleep(1) 
+    await asyncio.sleep(1)
     await signal_queue.put("sentinel_value") # Sentinel value to terminate await change_queue.get()
 
     print(f"End of monitor_file_changes reached for {file_path}")

@@ -64,8 +64,8 @@ async def create_script(queries_dictionary_list, websites_used,
 
     results = asyncio.run(async_parallel_run(
         queries_dictionary_list, websites_used,
-        k_value_similarity_search,                 
-        web_scrapper_system_instructions,      
+        k_value_similarity_search,
+        web_scrapper_system_instructions,
         ))
 
     '****************************************************************************************************************************************************'
@@ -111,9 +111,9 @@ async def async_parallel_run(queries_dictionary_list, websites_used, k_value_sim
 async def get_intermediate_answer(query_dict, websites_used, k_value_similarity_search, web_scrapper_system_instructions):
 
       relevant_information = await find_relevant_docs(
-          query_dict['query'], 
-          query_dict['database_list'], 
-          len(websites_used), 
+          query_dict['query'],
+          query_dict['database_list'],
+          len(websites_used),
           num_of_docs_to_return = k_value_similarity_search
           )
       page_content, metadata = relevant_information

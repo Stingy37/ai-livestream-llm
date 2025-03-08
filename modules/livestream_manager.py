@@ -38,34 +38,12 @@ from modules.utils import initialize_executors, reset_global_variables, shutdown
 from modules.web_scraper import fetch_images_off_specific_url
 
 
-async def generate_livestream(audio_already_playing):
+async def generate_livestream(audio_already_playing, scenes_config, first_call):
     '***************************************************** Centralized configuration for all scenes ******************************************************'
 
-    tropical_tidbits_storm_url = 'https://www.tropicaltidbits.com/storminfo/#25W'
+    tt_storm_url = scenes_config['tt_storm_url']
 
-    scenes_config = [
-        {
-            'name': 'first_scene',
-            'search_queries': websites_and_search_queries['tropics_main_search_queries'],
-            'websites': websites_and_search_queries['tropics_forecast_websites_ph'],
-            'system_instructions': system_instructions_generate_livestream['tropics_news_reporter_system_instructions_en'],
-            'language': 'en',
-        },
-        {
-            'name': 'second_scene',
-            'search_queries': websites_and_search_queries['city_forecast_queries_one_ph'],
-            'websites': websites_and_search_queries['city_forecast_websites_one_ph'],
-            'system_instructions': system_instructions_generate_livestream['city_forecast_system_instructions_ph'],
-            'language': 'ph',
-        },
-        {
-            'name': 'third_scene',
-            'search_queries': websites_and_search_queries['city_forecast_queries_two_ph'],
-            'websites': websites_and_search_queries['city_forecast_websites_two_ph'],
-            'system_instructions': system_instructions_generate_livestream['city_forecast_system_instructions_ph'],
-            'language': 'ph',
-        },
-    ]
+    scenes_config = scenes_config['scenes']
     '****************************************************************************************************************************************************'
     database_tasks = [
         asyncio.create_task(
@@ -76,12 +54,12 @@ async def generate_livestream(audio_already_playing):
                 do_google_search = False,
                 websites_to_use = scene['websites'],
             )
-        ) for scene in scenes_config
+        ) for scene in scenes_config['scenes']
     ]
 
     # Create an async task to scrape the specific storm URL
     image_scrape_task = asyncio.create_task(fetch_images_off_specific_url(
-        url = tropical_tidbits_storm_url
+        url = tt_storm_url
     ))
 
     # Process results
@@ -89,7 +67,7 @@ async def generate_livestream(audio_already_playing):
         image_scrape_task,
         asyncio.gather(*database_tasks)
     )
-    configs.database_results = database_results 
+    configs.database_results = database_results
 
     '****************************************************************************************************************************************************'
     """ controller for generating scripts and items """
@@ -150,7 +128,7 @@ async def controller_play_audio_and_download_handler(scenes_items, initial_previ
     configs.use_tts_api = False
 
     # Play i more iterations determined by range() and handles updating scene_items on last iteration
-    total_iterations = 2
+    total_iterations = 10
     for i in range(total_iterations):
         print("Iteration number:", i)
         if i == (total_iterations - 1):  # If last iteration, play audio and update scene_items concurrently
@@ -214,6 +192,7 @@ async def process_scene(scene_items, audio_file_name, previous_audio_task=None):
         }))
         generate_scene_task = asyncio.create_task(generate_scene_content(
             items=scene_items,
+            language='aus', # TEMP, SWITCH LANGUAGE CONFIGS TO BE GLOBALLY ACCESSIBLE
             audio_file_name=audio_file_name
         ))
         _, (saved_stream_items, audio_info) = await asyncio.gather(
@@ -227,6 +206,7 @@ async def process_scene(scene_items, audio_file_name, previous_audio_task=None):
         # If previous audio is already playing and no YouTube interactivity audio
         generate_scene_task = asyncio.create_task(generate_scene_content(
             items=scene_items,
+            language='aus', # TEMP, SWITCH LANGUAGE CONFIGS TO BE GLOBALLY ACCESSIBLE
             audio_file_name=audio_file_name
         ))
         _, (saved_stream_items, audio_info) = await asyncio.gather(
@@ -237,6 +217,7 @@ async def process_scene(scene_items, audio_file_name, previous_audio_task=None):
         # If there's no previous audio and no YouTube interactivity, just generate the scene content
         saved_stream_items, audio_info = await generate_scene_content(
             items=scene_items,
+            language='aus', # TEMP, SWITCH LANGUAGE CONFIGS TO BE GLOBALLY ACCESSIBLE
             audio_file_name=audio_file_name
         )
     # Download the items to the local computer
