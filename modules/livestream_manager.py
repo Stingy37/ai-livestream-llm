@@ -34,17 +34,24 @@ from modules.configs import (
 from modules.database_handler import create_databases_handler
 from modules.file_manager import download_file_handler, generate_scene_content, save_images_async
 from modules.high_level_orchestrators import create_script_handler
-from modules.utils import initialize_executors, reset_global_variables, shutdown_executors
+from modules.utils import initialize_executors, reset_global_variables, shutdown_executors, add_to_configs
 from modules.web_scraper import fetch_images_off_specific_url
 
 
-async def generate_livestream(audio_already_playing, scenes_config, first_call):
+async def generate_livestream(audio_already_playing, first_call, **scenes_config):
     '***************************************************** Centralized configuration for all scenes ******************************************************'
+    if first_call:
+      tt_storm_url = scenes_config['tt_storm_url'] 
+      scenes_config = scenes_config['scenes']  
 
-    tt_storm_url = scenes_config['tt_storm_url']
+      # Add values to modules.config for access after the first call
+      add_to_configs(tt_storm_url, scenes_config) 
 
-    scenes_config = scenes_config['scenes']
+    else:
+      tt_storm_url = configs.tt_storm_url
+      scenes_config = configs.scenes_config
     '****************************************************************************************************************************************************'
+
     database_tasks = [
         asyncio.create_task(
             create_databases_handler(
@@ -135,9 +142,10 @@ async def controller_play_audio_and_download_handler(scenes_items, initial_previ
             clear_output(wait=True)
 
             # Generate new scene items concurrently
-            generate_new_scene_items_task = asyncio.create_task(
-                generate_livestream(audio_already_playing=True)
-            )
+            generate_new_scene_items_task = asyncio.create_task(generate_livestream(
+                    audio_already_playing = True,
+                    first_call = False
+            ))
 
             # Play audio and generate new scenes concurrently
             print("Last iteration playing, updating scene_items concurrently")

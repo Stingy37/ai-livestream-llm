@@ -14,6 +14,7 @@ Functions:
 
 # Standard Library Imports
 import asyncio
+import inspect 
 import os
 import logging
 import tracemalloc
@@ -105,6 +106,7 @@ def read_file(file_path):
             return file.read().strip()
     return ""
 
+
 # Monitor a certain file for changes, if so, send a signal via adding to queue and keep monitoring
 async def monitor_file_changes(stop_event, file_path, signal_queue):
     last_mod_time = None
@@ -130,6 +132,7 @@ async def monitor_file_changes(stop_event, file_path, signal_queue):
 
     print(f"End of monitor_file_changes reached for {file_path}")
 
+
 # Provides a list of the current topics that were used while stop_event wasn't set (essentially stores past current topics)
 async def create_current_topic_list(stop_event, change_queue):
     current_topic_list = []
@@ -154,3 +157,48 @@ async def create_current_topic_list(stop_event, change_queue):
 
     return current_topic_list
 
+
+# Helper function to add new values to global configs file 
+def add_to_configs(*values):
+    # Look at call stack's previous frame to get caller's local variables as a dictionary 
+    caller_locals = inspect.currentframe().f_back.f_locals
+    value_names = []
+
+    for value in values:
+        found_name = None
+        # Compares the values passed in as parameters to the same parameters except in the call stack frame (in the call stack, the name is attached to the value) 
+        for local_value_name, local_value in caller_locals.items():
+            if value is local_value: 
+                found_name = local_value_name           
+                value_names.append(found_name)
+                break
+        if found_name is None:
+            raise ValueError(f"Unable to add value: {value} to module.configs") # Stop the program b/c it's a fatal error        
+
+    config_path = "configs.py"
+
+    with open(config_path, "r") as f:
+        config_content = f.read()
+
+    new_lines = []
+
+    # Remove any existing duplicate configs in module.configs
+    for value_name, value in zip(value_names, values):
+        pattern = rf'^\s*{re.escape(value_name)}\s*=.*\n'
+        config_content = re.sub(pattern, '', config_content, flags=re.MULTILINE)
+        new_lines.append(f"{value_name} = {repr(value)}")
+
+    # Remove divider
+    divider = "# ################################################### Temporary, session based configs ########################################################"
+    divder_pattern = rf'^{re.escape(divider)}.*$'
+    config_content = re.sub(divder_pattern, '', config_content, flags=re.MULTILINE)
+
+    # Clean up extra blank lines
+    config_content = re.sub(r'\n{2,}$', '\n', config_content, flags=re.MULTILINE)
+
+    # Prepare new block with new configs
+    new_block = "\n\n\n" + divider + "\n" + "\n".join(new_lines) + "\n\n"
+
+    # Write the cleaned-up original content plus the new configs
+    with open(config_path, "w") as f:
+        f.write(config_content.rstrip() + new_block)
