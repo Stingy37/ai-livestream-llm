@@ -12,6 +12,7 @@ Functions:
 
 # Standard Library Imports
 import asyncio
+import importlib
 import os
 from IPython.display import clear_output
 
@@ -41,13 +42,18 @@ from modules.web_scraper import fetch_images_off_specific_url
 async def generate_livestream(audio_already_playing, first_call, **scenes_config):
     '***************************************************** Centralized configuration for all scenes ******************************************************'
     if first_call:
-      tt_storm_url = scenes_config['tt_storm_url'] 
-      scenes_config = scenes_config['scenes']  
+      scenes_config = scenes_config["scenes_config"] # **scenes_config represents a dictionary with all extra parameters used in function call, so have to chain
+      tt_storm_url = scenes_config["tt_storm_url"]
+      scenes_config = scenes_config["scenes"]
+
+      print("tt_storm_url:", tt_storm_url)
+      print("scenes_config:", scenes_config)
 
       # Add values to modules.config for access after the first call
-      add_to_configs(tt_storm_url, scenes_config) 
+      add_to_configs(tt_storm_url, scenes_config)
 
     else:
+      importlib.reload(configs)
       tt_storm_url = configs.tt_storm_url
       scenes_config = configs.scenes_config
     '****************************************************************************************************************************************************'
@@ -61,7 +67,7 @@ async def generate_livestream(audio_already_playing, first_call, **scenes_config
                 do_google_search = False,
                 websites_to_use = scene['websites'],
             )
-        ) for scene in scenes_config['scenes']
+        ) for scene in scenes_config
     ]
 
     # Create an async task to scrape the specific storm URL
@@ -74,7 +80,7 @@ async def generate_livestream(audio_already_playing, first_call, **scenes_config
         image_scrape_task,
         asyncio.gather(*database_tasks)
     )
-    configs.database_results = database_results
+    configs.database_results = database_results # Make results globally accessible
 
     '****************************************************************************************************************************************************'
     """ controller for generating scripts and items """
@@ -135,7 +141,7 @@ async def controller_play_audio_and_download_handler(scenes_items, initial_previ
     configs.use_tts_api = False
 
     # Play i more iterations determined by range() and handles updating scene_items on last iteration
-    total_iterations = 10
+    total_iterations = 2
     for i in range(total_iterations):
         print("Iteration number:", i)
         if i == (total_iterations - 1):  # If last iteration, play audio and update scene_items concurrently
@@ -214,7 +220,7 @@ async def process_scene(scene_items, audio_file_name, previous_audio_task=None):
         # If previous audio is already playing and no YouTube interactivity audio
         generate_scene_task = asyncio.create_task(generate_scene_content(
             items=scene_items,
-            language='aus', # TEMP, SWITCH LANGUAGE CONFIGS TO BE GLOBALLY ACCESSIBLE
+            language='aus',
             audio_file_name=audio_file_name
         ))
         _, (saved_stream_items, audio_info) = await asyncio.gather(
@@ -225,7 +231,7 @@ async def process_scene(scene_items, audio_file_name, previous_audio_task=None):
         # If there's no previous audio and no YouTube interactivity, just generate the scene content
         saved_stream_items, audio_info = await generate_scene_content(
             items=scene_items,
-            language='aus', # TEMP, SWITCH LANGUAGE CONFIGS TO BE GLOBALLY ACCESSIBLE
+            language='aus',
             audio_file_name=audio_file_name
         )
     # Download the items to the local computer

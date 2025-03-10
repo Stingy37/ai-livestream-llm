@@ -14,9 +14,10 @@ Functions:
 
 # Standard Library Imports
 import asyncio
-import inspect 
-import os
+import inspect
 import logging
+import os
+import re
 import tracemalloc
 from concurrent.futures import ThreadPoolExecutor
 
@@ -158,24 +159,28 @@ async def create_current_topic_list(stop_event, change_queue):
     return current_topic_list
 
 
-# Helper function to add new values to global configs file 
+# Helper function to add new values to global configs file
 def add_to_configs(*values):
-    # Look at call stack's previous frame to get caller's local variables as a dictionary 
+    # Look at call stack's previous frame to get caller's local variables as a dictionary
     caller_locals = inspect.currentframe().f_back.f_locals
     value_names = []
 
     for value in values:
         found_name = None
-        # Compares the values passed in as parameters to the same parameters except in the call stack frame (in the call stack, the name is attached to the value) 
+        # Compares the values passed in as parameters to the same parameters except in the call stack frame (in the call stack, the name is attached to the value)
         for local_value_name, local_value in caller_locals.items():
-            if value is local_value: 
-                found_name = local_value_name           
+            if value is local_value:
+                found_name = local_value_name
                 value_names.append(found_name)
                 break
         if found_name is None:
-            raise ValueError(f"Unable to add value: {value} to module.configs") # Stop the program b/c it's a fatal error        
+            raise ValueError(f"Unable to add value: {value} to module.configs") # Stop the program b/c it's a fatal error
 
-    config_path = "configs.py"
+    config_path = os.path.abspath("ai-livestream-llm/modules/configs.py")
+
+    print("Current working directory:", os.getcwd())
+    print("Config path exists:", os.path.exists(config_path))
+    print("config_path:", config_path)
 
     with open(config_path, "r") as f:
         config_content = f.read()
@@ -188,10 +193,10 @@ def add_to_configs(*values):
         config_content = re.sub(pattern, '', config_content, flags=re.MULTILINE)
         new_lines.append(f"{value_name} = {repr(value)}")
 
-    # Remove divider
+    # Handle divider
     divider = "# ################################################### Temporary, session based configs ########################################################"
-    divder_pattern = rf'^{re.escape(divider)}.*$'
-    config_content = re.sub(divder_pattern, '', config_content, flags=re.MULTILINE)
+    divider_pattern = rf'^{re.escape(divider)}.*$'
+    config_content = re.sub(divider_pattern, '', config_content, flags=re.MULTILINE)
 
     # Clean up extra blank lines
     config_content = re.sub(r'\n{2,}$', '\n', config_content, flags=re.MULTILINE)
