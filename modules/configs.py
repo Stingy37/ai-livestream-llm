@@ -22,7 +22,7 @@ from langchain_openai import OpenAIEmbeddings
 from openai import AsyncOpenAI
 
 
-##############################################################   general config settings ########################################################################
+#################################################################### General Configs ###########################################################################
 
 # User Data Constants
 userdata = {
@@ -34,9 +34,6 @@ userdata = {
 openai_api_key = userdata.get('openai_api_key')
 search_api_key = userdata.get('search_api_key')
 search_engine_id = userdata.get('search_engine_id')
-
-# Empty list to store database_results when generated
-database_results = []
 
 # OpenAI Configuration
 client = AsyncOpenAI(api_key=openai_api_key)
@@ -73,7 +70,17 @@ database_executor = None
 fetch_html_executor = None
 executor_list = []
 
-# ################################################################# urls and search queries ######################################################################
+
+############################################################ Empty Storage Variables to Initialize Later #########################################################
+
+# Used to store FAISS vector databases for easier access
+database_results = []
+
+# Used to store scene configs after they've been set by the user 
+tt_storm_url = ''
+scenes_config = []
+
+################################################################### Urls and Search Queries ######################################################################
 
 websites_and_search_queries = {
     # Sorted by most commonly used -> least commonly used (top to bottom)
@@ -220,7 +227,7 @@ websites_and_search_queries = {
 
 
 
-################################################################## system instructions ##########################################################################
+################################################################## System Instructions ##########################################################################
 
 system_instructions_generate_livestream = {
     # tropics_news_reporter_system_instructions in use
@@ -545,3 +552,5 @@ system_instructions_generate_livestream = {
         "6d. WALANG mga diagram o chart sa iyong sagot, ito ay isang text-based na script na babasahin nang malakas. Sa halip na diagram, ipaliwanag mo ito na parang nagpapaliwanag ka ng isang diagram."
     ),
 }
+
+

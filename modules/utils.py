@@ -9,6 +9,7 @@ Functions:
     handle_language()
     monitor_file_changes()
     read_file()
+    add_to_configs() - DEPRECATED
 """
 
 
@@ -159,6 +160,7 @@ async def create_current_topic_list(stop_event, change_queue):
     return current_topic_list
 
 
+'*************************************************** Deprecated because reloading config affects flags **********************************************************'
 # Helper function to add new values to global configs file
 def add_to_configs(*values):
     # Look at call stack's previous frame to get caller's local variables as a dictionary

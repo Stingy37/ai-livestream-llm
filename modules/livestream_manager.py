@@ -42,7 +42,7 @@ from modules.web_scraper import fetch_images_off_specific_url
 async def generate_livestream(audio_already_playing, first_call, **scenes_config):
     '***************************************************** Centralized configuration for all scenes ******************************************************'
     if first_call:
-      scenes_config = scenes_config["scenes_config"] # **scenes_config represents a dictionary with all extra parameters used in function call, so have to chain
+      scenes_config = scenes_config["scenes_config"] # **scenes_config represents a dictionary with ALL extra parameters used in function call, so have to chain
       tt_storm_url = scenes_config["tt_storm_url"]
       scenes_config = scenes_config["scenes"]
 
@@ -50,10 +50,10 @@ async def generate_livestream(audio_already_playing, first_call, **scenes_config
       print("scenes_config:", scenes_config)
 
       # Add values to modules.config for access after the first call
-      add_to_configs(tt_storm_url, scenes_config)
+      configs.tt_storm_url = tt_storm_url
+      configs.scenes_config = scenes_config
 
     else:
-      importlib.reload(configs)
       tt_storm_url = configs.tt_storm_url
       scenes_config = configs.scenes_config
     '****************************************************************************************************************************************************'
