@@ -24,7 +24,7 @@ from modules.configs import (
     search_api_key,
     search_engine_id,
 )
-from modules.database_handler import find_relevant_docs
+from modules.database_handler import find_relevant_docs_database
 from modules.openai_handler import generate_text, return_gpt_answer
 from modules.utils import handle_language
 
@@ -32,6 +32,7 @@ from modules.utils import handle_language
 # Sets up variables + environment for create_script, then handles what it returns
 async def create_script_handler(queries_dictionary_list, websites_used,
                         final_script_system_instructions, language):
+  
     (web_scrapper_system_instructions,
      key_messages_system_instructions,
      topic_system_instructions) = await handle_language(language)
@@ -40,7 +41,7 @@ async def create_script_handler(queries_dictionary_list, websites_used,
 
     # Capture the result returned by the async function
     items_generated = loop.run_until_complete(create_script(
-        queries_dictionary_list, 
+        queries_dictionary_list,
         websites_used,
         final_script_system_instructions,
         web_scrapper_system_instructions,
@@ -110,10 +111,10 @@ async def async_parallel_run(queries_dictionary_list, websites_used, k_value_sim
 # Handles image urls and returns intermediate ChatGPT answer for usage later (Runs for each query)
 async def get_intermediate_answer(query_dict, websites_used, k_value_similarity_search, web_scrapper_system_instructions):
 
-      relevant_information = await find_relevant_docs(
-          query_dict['query'],
-          query_dict['database_list'],
-          len(websites_used),
+      relevant_information = await find_relevant_docs_database(
+          query = query_dict['query'],
+          database_list = query_dict['database_list'],
+          max_workers = len(websites_used),
           num_of_docs_to_return = k_value_similarity_search
           )
       page_content, metadata = relevant_information

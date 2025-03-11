@@ -76,7 +76,7 @@ executor_list = []
 # Used to store FAISS vector databases for easier access
 database_results = []
 
-# Used to store scene configs after they've been set by the user 
+# Used to store scene configs after they've been set by the user
 tt_storm_url = ''
 scenes_config = []
 

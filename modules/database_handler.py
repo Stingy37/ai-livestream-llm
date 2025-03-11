@@ -3,14 +3,16 @@ This module provides functions that handles everything related to interaction wi
 
 Classes:
     Document
+    Database
 
 Functions:
     create_databases_handler()
     create_databases_for_query()
     process_urls_for_database()
     process_text_to_db()
-    find_relevant_docs()
-    similarity_search_database()
+    find_relevant_docs_database()
+    find_relevant_docs_query()
+    similarity_search()
 """
 
 
@@ -27,6 +29,7 @@ from langchain_community.vectorstores import FAISS
 from modules.configs import embeddings
 from modules.web_scraper import fetch_and_process_html, google_search
 from modules.webdriver_handler import create_drivers
+
 
 # Aligned with langchain's document class, instances of this class used to create database
 class Document:
@@ -49,7 +52,7 @@ async def create_databases_handler(search_queries, search_api_key, search_engine
     {
         'query': query,
         'database_list': [database_class_one, database_class_two]
-        where each database_class contains a FAISS database and its metadata
+        where each database_class contains a FAISS database object and its metadata (metadata is dictionary with 'website': url)
     }
     """
     tasks = []
@@ -117,14 +120,17 @@ def process_text_to_db(clean_texts, url):
     return faiss_db
 
 
-
 # Gets the most relevant passages from the constructed vector database
-async def find_relevant_docs(query, database_list, max_workers = 10, num_of_docs_to_return = 2): # Default values for last 2 parameters
+async def find_relevant_docs_database(query, database_list, max_workers = 10, num_of_docs_to_return = 2): # Default values for last 2 parameters
+    """
+    Async wrapper function used to call similarity_search
+    Version: One query, multiple databases
+    """
     metadata = []
     relevant_page_content = []
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(similarity_search_database, query, database, num_of_docs_to_return) for database in database_list]
+        futures = [executor.submit(similarity_search, query, database, num_of_docs_to_return) for database in database_list]
         for future in as_completed(futures):
             result = future.result()
             if result:
@@ -135,8 +141,29 @@ async def find_relevant_docs(query, database_list, max_workers = 10, num_of_docs
     return [relevant_page_content_string, metadata]
 
 
+# Multiple query version of find_relevant_docs (Could DRY with lamba / callbacks, but decreases readability & don't think my skill level is there yet)
+async def find_relevant_docs_query(query_list, database, max_workers = 10, num_of_docs_to_return = 2): # Default values for last 2 parameters
+    """
+    Async wrapper function used to call similarity_search
+    Version: multiple queries, one database
+    """
+    metadata = []
+    relevant_page_content = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(similarity_search, query, database, num_of_docs_to_return) for query in query_list]
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                relevant_page_content.extend(result['relevant_page_content'])
+                metadata.extend(result['metadata'])
+
+    relevant_page_content = list(dict.fromkeys(relevant_page_content))
+    relevant_page_content_string = ", ".join(relevant_page_content)
+
+
 # Returns passages in database with most similarity to query
-def similarity_search_database(query, database, num_of_docs_to_return):
+def similarity_search(query, database, num_of_docs_to_return):
     database = database.database # Seperate database attribute from the metadata attribute (b/c the parameter database is now a class)
 
     # Handle when URL fails to fetch

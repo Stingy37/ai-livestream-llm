@@ -80,7 +80,7 @@ async def generate_livestream(audio_already_playing, first_call, **scenes_config
         image_scrape_task,
         asyncio.gather(*database_tasks)
     )
-    configs.database_results = database_results # Make results globally accessible 
+    configs.database_results = database_results # Make results globally accessible
 
     '****************************************************************************************************************************************************'
     """ controller for generating scripts and items """
