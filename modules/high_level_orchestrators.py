@@ -40,14 +40,14 @@ async def create_script_handler(queries_dictionary_list, websites_used,
 
     # Capture the result returned by the async function
     items_generated = loop.run_until_complete(create_script(
-        queries_dictionary_list, websites_used,
+        queries_dictionary_list, 
+        websites_used,
         final_script_system_instructions,
         web_scrapper_system_instructions,
         key_messages_system_instructions,
         topic_system_instructions,
         k_value_similarity_search = 4
         ))
-
     return items_generated
 
 

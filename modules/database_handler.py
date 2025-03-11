@@ -35,11 +35,22 @@ class Document:
         self.metadata = metadata
         self.id = id or uuid.uuid4()
 
+# Link FAISS database to its metadata (i.e. the website used)
+class Database:
+    def __init__(self, database, metadata):
+        self.database = database
+        self.metadata = metadata
+
 # Used to create a database for each scene
 async def create_databases_handler(search_queries, search_api_key, search_engine_id, do_google_search, websites_to_use):
     """
     Scrapes the URLs and initializes the vector databases.
-    Returns a list of databases corresponding to each query.
+    Returns a dictionary with two keys called query and database_lists.
+    {
+        'query': query,
+        'database_list': [database_class_one, database_class_two]
+        where each database_class contains a FAISS database and its metadata
+    }
     """
     tasks = []
     for query in search_queries.values():
@@ -99,7 +110,7 @@ def process_text_to_db(clean_texts, url):
     total_docs = [Document(page_content=text, metadata=metadata) for text in clean_texts]
 
     # Creating the FAISS vector database (CPU-bound operation)
-    faiss_db = FAISS.from_documents(total_docs, embeddings)
+    faiss_db = Database(database=FAISS.from_documents(total_docs, embeddings), metadata=metadata)
     database_end_time = time.time()
     print(f"Time taken to create database for {url}: {database_end_time - database_start_time}")
 
@@ -126,6 +137,8 @@ async def find_relevant_docs(query, database_list, max_workers = 10, num_of_docs
 
 # Returns passages in database with most similarity to query
 def similarity_search_database(query, database, num_of_docs_to_return):
+    database = database.database # Seperate database attribute from the metadata attribute (b/c the parameter database is now a class)
+
     # Handle when URL fails to fetch
     if database is None:
         return {
