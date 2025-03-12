@@ -68,11 +68,11 @@ class Database:
 async def create_databases_handler(scenes_config):
     """
     Scrapes the URLs and initializes scene databases, and handles creation of databases used for judging 
-    Returns a dictionary of the scene databases with two keys called query and database_lists.
+    Returns a list of dictionaries of the scene databases. Each dictionary has two keys called query and database_lists:
     {
         'query': query,
         'database_list': [database_class_one, database_class_two]
-        where each database_class contains a FAISS database object and its metadata (metadata is dictionary with 'website': url)
+        where each database_class contains a FAISS database object and its metadata (metadata is another dictionary with 'website': url)
     }
     """
     database_tasks = [
