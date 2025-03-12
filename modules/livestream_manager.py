@@ -32,7 +32,7 @@ from modules.configs import (
     use_tts_api,
     websites_and_search_queries
 )
-from modules.database_handler import create_databases_handler
+from modules.database_handler import create_databases_handler, create_unique_databases
 from modules.file_manager import download_file_handler, generate_scene_content, save_images_async
 from modules.high_level_orchestrators import create_script_handler
 from modules.utils import initialize_executors, reset_global_variables, shutdown_executors, add_to_configs
@@ -58,17 +58,7 @@ async def generate_livestream(audio_already_playing, first_call, **scenes_config
       scenes_config = configs.scenes_config
     '****************************************************************************************************************************************************'
 
-    database_tasks = [
-        asyncio.create_task(
-            create_databases_handler(
-                search_queries = scene['search_queries'],
-                search_api_key = search_api_key,
-                search_engine_id = search_engine_id,
-                do_google_search = False,
-                websites_to_use = scene['websites'],
-            )
-        ) for scene in scenes_config
-    ]
+    database_task = asyncio.create_task(create_databases_handler(scenes_config)) 
 
     # Create an async task to scrape the specific storm URL
     image_scrape_task = asyncio.create_task(fetch_images_off_specific_url(
@@ -76,11 +66,10 @@ async def generate_livestream(audio_already_playing, first_call, **scenes_config
     ))
 
     # Process results
-    total_image_urls, (database_results) = await asyncio.gather(
+    total_image_urls, (scene_database_results) = await asyncio.gather(
         image_scrape_task,
-        asyncio.gather(*database_tasks)
+        database_task
     )
-    configs.database_results = database_results # Make results globally accessible
 
     '****************************************************************************************************************************************************'
     """ controller for generating scripts and items """
@@ -101,7 +90,7 @@ async def generate_livestream(audio_already_playing, first_call, **scenes_config
                 language = scene['language'],
             )
         )
-        for scene, db_result in zip(scenes_config, database_results)
+        for scene, db_result in zip(scenes_config, scene_database_results)
     ]
     # Execute all scene tasks concurrently
     gathered_results = await asyncio.gather(image_scrape_task, *scene_tasks)

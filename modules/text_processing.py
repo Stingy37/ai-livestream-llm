@@ -21,19 +21,48 @@ def filter_content(content):
 
 
 # Splits a website's markdown into small chunks for vector database
-def split_markdown_chunks(markdown_document, max_words):
-    clean_texts = re.split(splitter_pattern, markdown_document, flags=re.MULTILINE) # splitter_pattern can be found in config.py
+def split_markdown_chunks(markdown_document, max_words, min_words=100):
+    clean_texts = re.split(splitter_pattern, markdown_document, flags=re.MULTILINE)
     final_chunks = []
+    
     for text in clean_texts:
         words = text.split()
         if len(words) > max_words:
             chunk_start = 0
+            # First, split into chunks of at most max_words.
+            chunks = []
             while chunk_start < len(words):
                 chunk_end = min(chunk_start + max_words, len(words))
-                final_chunks.append(" ".join(words[chunk_start:chunk_end]))
+                chunks.append(" ".join(words[chunk_start:chunk_end]))
                 chunk_start = chunk_end
+            # Now combine chunks that don't meet the min_words requirement.
+            combined_chunks = []
+            buffer = ""
+            for chunk in chunks:
+                if buffer:
+                    buffer += " " + chunk
+                else:
+                    buffer = chunk
+
+                # Check if buffer meets min_words, if so flush it.
+                if len(buffer.split()) >= min_words:
+                    combined_chunks.append(buffer)
+                    buffer = ""
+            # If any buffer remains that didn't reach min_words, append it anyway.
+            if buffer:
+                combined_chunks.append(buffer)
+                
+            final_chunks.extend(combined_chunks)
         else:
-            final_chunks.append(text)
+            # For chunks with length less than or equal to max_words,
+            # combine with previous if they don't meet min_words (optional logic).
+            if min_words > 0 and len(words) < min_words and final_chunks:
+                # Combine with last chunk if it exists.
+                combined = final_chunks.pop() + " " + text
+                final_chunks.append(combined)
+            else:
+                final_chunks.append(text)
+                
     return final_chunks
 
 

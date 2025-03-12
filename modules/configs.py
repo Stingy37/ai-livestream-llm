@@ -30,7 +30,6 @@ userdata = {
     'search_api_key': userdata.get('search_api_key'),
     'search_engine_id': userdata.get('search_engine_id')
 }
-
 openai_api_key = userdata.get('openai_api_key')
 search_api_key = userdata.get('search_api_key')
 search_engine_id = userdata.get('search_engine_id')
@@ -75,6 +74,8 @@ executor_list = []
 
 # Used to store FAISS vector databases for easier access
 database_results = []
+unique_databases = []
+merged_database = None
 
 # Used to store scene configs after they've been set by the user
 tt_storm_url = ''

@@ -47,6 +47,8 @@ def initialize_chrome_driver():
             driver = webdriver.Chrome(service=Service(chromedriver_path), options=chrome_options)
             driver.set_page_load_timeout(300)          # 5 minutes for page load
 
+            # driver.execute_cdp_cmd("Network.setExtraHTTPHeaders", {"headers": custom_headers})
+
             return driver
 
         except Exception as e:
