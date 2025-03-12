@@ -23,7 +23,7 @@ async def generate_audio_handler(generated_items, file_name, tts_flag_override =
   # Handle voice (choose correct accent)
   voice = {
       'aus': 'fable'
-  }.get(configs.scenes_config['language'], 'shimmer') # Essentially switch-case, default value is shimmer
+  }.get(configs.scenes_config_list[0]['language'], 'shimmer') # Essentially switch-case, default value is shimmer
 
   # Gets script from generated_items
   script_to_read = generated_items['script']

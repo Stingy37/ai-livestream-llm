@@ -5,11 +5,14 @@ Functions:
     initialize_environment()
     initialize_executors()
     shutdown_executors()
+
     reset_global_variables()
     handle_language()
+
     monitor_file_changes()
     read_file()
-    add_to_configs() - DEPRECATED
+
+    websites_and_search_queries_helper()
 """
 
 
@@ -32,7 +35,8 @@ from modules.configs import (
     database_executor,
     executor_list,
     cse_api_call_count,
-    system_instructions_generate_livestream
+    system_instructions_generate_livestream,
+    websites_and_search_queries
 )
 
 
@@ -81,11 +85,10 @@ async def handle_language(language):
     print("language being used:", language)
     # Dictionary mapping language codes to parameters
     language_params = {
-        'en': {
+        'en': { # Refactor this later 
             'web_scrapper_system_instructions': system_instructions_generate_livestream['web_scrapper_system_instructions_en'],
             'key_messages_system_instructions': system_instructions_generate_livestream['key_messages_system_instructions_en'],
             'topic_system_instructions': system_instructions_generate_livestream['topic_system_instructions_en'],
-
         },
         'ph': {
             'web_scrapper_system_instructions': system_instructions_generate_livestream['web_scrapper_system_instructions_ph'],
@@ -93,7 +96,16 @@ async def handle_language(language):
             'topic_system_instructions': system_instructions_generate_livestream['topic_system_instructions_ph'],
 
         },
-
+        'aus': {
+            'web_scrapper_system_instructions': system_instructions_generate_livestream['web_scrapper_system_instructions_en'],
+            'key_messages_system_instructions': system_instructions_generate_livestream['key_messages_system_instructions_en'],
+            'topic_system_instructions': system_instructions_generate_livestream['topic_system_instructions_en'],
+        },
+        'us': {
+            'web_scrapper_system_instructions': system_instructions_generate_livestream['web_scrapper_system_instructions_en'],
+            'key_messages_system_instructions': system_instructions_generate_livestream['key_messages_system_instructions_en'],
+            'topic_system_instructions': system_instructions_generate_livestream['topic_system_instructions_en'],
+        }
         # Add more languages as needed
     }
 
@@ -160,52 +172,18 @@ async def create_current_topic_list(stop_event, change_queue):
     return current_topic_list
 
 
-'*************************************************** Deprecated because reloading config affects flags **********************************************************'
-# Helper function to add new values to global configs file
-def add_to_configs(*values):
-    # Look at call stack's previous frame to get caller's local variables as a dictionary
-    caller_locals = inspect.currentframe().f_back.f_locals
-    value_names = []
-
-    for value in values:
-        found_name = None
-        # Compares the values passed in as parameters to the same parameters except in the call stack frame (in the call stack, the name is attached to the value)
-        for local_value_name, local_value in caller_locals.items():
-            if value is local_value:
-                found_name = local_value_name
-                value_names.append(found_name)
-                break
-        if found_name is None:
-            raise ValueError(f"Unable to add value: {value} to module.configs") # Stop the program b/c it's a fatal error
-
-    config_path = os.path.abspath("ai-livestream-llm/modules/configs.py")
-
-    print("Current working directory:", os.getcwd())
-    print("Config path exists:", os.path.exists(config_path))
-    print("config_path:", config_path)
-
-    with open(config_path, "r") as f:
-        config_content = f.read()
-
-    new_lines = []
-
-    # Remove any existing duplicate configs in module.configs
-    for value_name, value in zip(value_names, values):
-        pattern = rf'^\s*{re.escape(value_name)}\s*=.*\n'
-        config_content = re.sub(pattern, '', config_content, flags=re.MULTILINE)
-        new_lines.append(f"{value_name} = {repr(value)}")
-
-    # Handle divider
-    divider = "# ################################################### Temporary, session based configs ########################################################"
-    divider_pattern = rf'^{re.escape(divider)}.*$'
-    config_content = re.sub(divider_pattern, '', config_content, flags=re.MULTILINE)
-
-    # Clean up extra blank lines
-    config_content = re.sub(r'\n{2,}$', '\n', config_content, flags=re.MULTILINE)
-
-    # Prepare new block with new configs
-    new_block = "\n\n\n" + divider + "\n" + "\n".join(new_lines) + "\n\n"
-
-    # Write the cleaned-up original content plus the new configs
-    with open(config_path, "w") as f:
-        f.write(config_content.rstrip() + new_block)
+# Helper function used only to retrieve website urls from configs
+def websites_and_search_queries_helper(key):
+    """
+    Retrieve URLs associated with the given key from websites_and_search_queries. 
+    - If it's a dictionary, return a list of its values (i.e. a list of URLs).
+    - If it's a list, return the list directly.
+    - Otherwise, return an empty list.
+    """
+    value = websites_and_search_queries.get(key)
+    if isinstance(value, dict):
+        return list(value.values())
+    elif isinstance(value, list):
+        return value
+    else:
+        return []

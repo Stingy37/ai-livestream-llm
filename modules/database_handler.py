@@ -66,7 +66,7 @@ class Database:
 
 
 # Used to handle all databases that need to be created
-async def create_databases_handler(scenes_config):
+async def create_databases_handler(scenes_config_list):
     """
     Scrapes the URLs and initializes scene databases, and handles creation of databases used for judging
     Returns a list of dictionaries of the scene databases. Each dictionary has two keys called query and database_lists:
@@ -85,7 +85,7 @@ async def create_databases_handler(scenes_config):
                 do_google_search = False,
                 websites_to_use = scene['websites'],
             )
-        ) for scene in scenes_config
+        ) for scene in scenes_config_list
     ]
     scene_database_results = await asyncio.gather(*database_tasks)
     configs.database_results = scene_database_results # Make scene results globally accessible
@@ -111,8 +111,8 @@ async def scene_database_handler(search_queries, search_api_key, search_engine_i
                 websites_to_use,
             )
         )
-    queries_dictionary_list = await asyncio.gather(*tasks)
-    return queries_dictionary_list
+    scene_database_results = await asyncio.gather(*tasks)
+    return scene_database_results
 
 
 async def create_databases_for_query(query, search_api_key, search_engine_id, do_google_search, websites_to_use):
@@ -250,6 +250,8 @@ async def find_relevant_docs_query(query_list, database, max_workers = 10, num_o
 
     relevant_page_content = list(dict.fromkeys(relevant_page_content))
     relevant_page_content_string = ", ".join(relevant_page_content)
+    return [relevant_page_content_string, metadata]
+
 
 
 # Returns passages in database with most similarity to query

@@ -81,7 +81,7 @@ merged_database = None
 
 # Used to store scene configs after they've been set by the user
 tt_storm_url = ''
-scenes_config = []
+scenes_config_list = []
 
 
 ################################################################### Urls and Search Queries ######################################################################
@@ -90,42 +90,42 @@ scenes_config = []
 websites_and_search_queries = {
     # Sorted by most commonly used -> least commonly used (top to bottom)
 
-    'tropics_forecast_websites_cn': [
-        'https://www.metoc.navy.mil/jtwc/products/wp2324prog.txt',
-        'https://www.taipeitimes.com/News/front/archives/2024/10/30/2003826086',
-        'https://www.nytimes.com/interactive/2024/10/25/weather/kong-rey-map-path-tracker.html'
-    ],
+    'tropics_forecast_websites_cn': {
+        'primary_info': 'https://www.metoc.navy.mil/jtwc/products/wp2324prog.txt', # Primary info is always a official agency (JTWC, NHC, or PAGASA)
+        'secondary_info_one': 'https://www.taipeitimes.com/News/front/archives/2024/10/30/2003826086',
+        'secondary_info_two': 'https://www.nytimes.com/interactive/2024/10/25/weather/kong-rey-map-path-tracker.html'
+    },
 
-    'tropics_forecast_websites_jp': [
-        'https://www.metoc.navy.mil/jtwc/products/wp1124prog.txt',
-        'https://www.data.jma.go.jp/multi/cyclone/cyclone_detail.html?id=60&lang=en',
-        'https://www3.nhk.or.jp/nhkworld/en/news/20240829_11/'
-    ],
+    'tropics_forecast_websites_jp': {
+        'primary_info': 'https://www.metoc.navy.mil/jtwc/products/wp1124prog.txt',
+        'secondary_info_one': 'https://www.data.jma.go.jp/multi/cyclone/cyclone_detail.html?id=60&lang=en',
+        'secondary_info_two': 'https://www3.nhk.or.jp/nhkworld/en/news/20240829_11/'
+    },
 
-    'tropics_forecast_websites_ph': [
-        'https://www.metoc.navy.mil/jtwc/products/wp2524prog.txt',
-        'https://www.pagasa.dost.gov.ph/weather#daily-weather-forecast',
-        'https://www.rappler.com/philippines/weather/super-typhoon-pepito-update-pagasa-forecast-november-16-2024-2pm/'
-    ],  # Use Rappler for 3rd slot unless not available
+    'tropics_forecast_websites_ph': {
+        'primary_website': 'https://www.metoc.navy.mil/jtwc/products/wp2524prog.txt',
+        'secondary_website_one': 'https://www.pagasa.dost.gov.ph/weather#daily-weather-forecast',
+        'secondary_website_two': 'https://www.rappler.com/philippines/weather/super-typhoon-pepito-update-pagasa-forecast-november-16-2024-2pm/'
+    },  # Use Rappler for 3rd slot unless not available
 
-    'tropics_forecast_websites_vt': [
-        'https://www.metoc.navy.mil/jtwc/products/wp1224prog.txt',
-        'https://nchmf.gov.vn/Kttv/vi-VN/1/tin-bao-khan-cap-con-bao-so-03-post68.html',
-        'https://laodong.vn/moi-truong/sieu-bao-so-3-yagi-xac-lap-ky-luc-chua-tung-co-o-bien-dong-1390345.ldo'
-    ],
+    'tropics_forecast_websites_vt': {
+        'primary_website': 'https://www.metoc.navy.mil/jtwc/products/wp1224prog.txt',
+        'secondary_website_one': 'https://nchmf.gov.vn/Kttv/vi-VN/1/tin-bao-khan-cap-con-bao-so-03-post68.html',
+        'secondary_website_two': 'https://laodong.vn/moi-truong/sieu-bao-so-3-yagi-xac-lap-ky-luc-chua-tung-co-o-bien-dong-1390345.ldo'
+    },
 
-    'tropics_forecast_websites_us': [
-        'https://www.nhc.noaa.gov/text/refresh/MIATCDAT4+shtml/232053.shtml?',
-        'https://www.nhc.noaa.gov/text/refresh/MIATCPAT4+shtml/232347.shtml?',
-        'https://www.cbsnews.com/news/hurricane-milton-maps-florida-forecast-tampa-bay-landfall/'
-    ],
+    'tropics_forecast_websites_us': {
+        'primary_website': 'https://www.nhc.noaa.gov/text/refresh/MIATCDAT4+shtml/232053.shtml?',
+        'secondary_website_one': 'https://www.nhc.noaa.gov/text/refresh/MIATCPAT4+shtml/232347.shtml?',
+        'secondary_website_two': 'https://www.cbsnews.com/news/hurricane-milton-maps-florida-forecast-tampa-bay-landfall/'
+    },
 
-    'tropics_forecast_websites_au': [
-        'http://www.bom.gov.au/cgi-bin/wrap_fwo.pl?IDW24200.html',
-        'https://www.metoc.navy.mil/jtwc/products/sh1725prog.txt?',
-        'https://www.abc.net.au/news/2025-02-14/tropical-cyclone-zelia-live-updates-blog/104937188'
+    'tropics_forecast_websites_aus': {
+        'primary_website': 'http://www.bom.gov.au/cgi-bin/wrap_fwo.pl?IDW24200.html',
+        'secondary_website_one': 'https://www.metoc.navy.mil/jtwc/products/sh1725prog.txt?',
+        'secondary_website_two': 'https://www.abc.net.au/news/2025-02-14/tropical-cyclone-zelia-live-updates-blog/104937188'
         # Use abc.net for 3rd slot unless not available
-    ],
+    },
 
     'tropics_main_search_queries': {
         'agency_query': "tropical cyclone zelia forecast", # "[name] forecast"
@@ -236,8 +236,8 @@ websites_and_search_queries = {
 
 
 system_instructions_generate_livestream = {
-    # judge_system_instructions_en in use 
-    'judge_system_instructions_en': (
+    # judge_system_instructions in use (ONLY one language b/c judging will always be done in english)
+    'judge_system_instructions': (
         "You are a judge that decides whether or not a provided script can be played on a news broadcast. "
         "Specifically, you will base your decision on how accurate the script is: if it contains NO informational errors, then it can proceed. "
         "Otherwise, if information errors are present, you should not allow it to proceed. "
@@ -256,7 +256,7 @@ system_instructions_generate_livestream = {
         "Do NOT include anything else in your response except for an integer value of either 0 or 1. "
 
         "Supplement 1: The script and the information sources must contradict to be an error; if a source merely doesn’t cover information on the script then you must not consider this in your judging. "
-    ), 
+    ),
 
     # tropics_news_reporter_system_instructions in use
     'tropics_news_reporter_system_instructions_en': (
