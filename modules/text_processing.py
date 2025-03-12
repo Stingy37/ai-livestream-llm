@@ -24,7 +24,7 @@ def filter_content(content):
 def split_markdown_chunks(markdown_document, max_words, min_words=100):
     clean_texts = re.split(splitter_pattern, markdown_document, flags=re.MULTILINE)
     final_chunks = []
-    
+
     for text in clean_texts:
         words = text.split()
         if len(words) > max_words:
@@ -51,7 +51,7 @@ def split_markdown_chunks(markdown_document, max_words, min_words=100):
             # If any buffer remains that didn't reach min_words, append it anyway.
             if buffer:
                 combined_chunks.append(buffer)
-                
+
             final_chunks.extend(combined_chunks)
         else:
             # For chunks with length less than or equal to max_words,
@@ -62,7 +62,7 @@ def split_markdown_chunks(markdown_document, max_words, min_words=100):
                 final_chunks.append(combined)
             else:
                 final_chunks.append(text)
-                
+
     return final_chunks
 
 

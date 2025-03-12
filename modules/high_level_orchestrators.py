@@ -32,7 +32,7 @@ from modules.utils import handle_language
 # Sets up variables + environment for create_script, then handles what it returns
 async def create_script_handler(queries_dictionary_list, websites_used,
                         final_script_system_instructions, language):
-  
+
     (web_scrapper_system_instructions,
      key_messages_system_instructions,
      topic_system_instructions) = await handle_language(language)

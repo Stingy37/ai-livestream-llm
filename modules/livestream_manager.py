@@ -58,7 +58,7 @@ async def generate_livestream(audio_already_playing, first_call, **scenes_config
       scenes_config = configs.scenes_config
     '****************************************************************************************************************************************************'
 
-    database_task = asyncio.create_task(create_databases_handler(scenes_config)) 
+    database_task = asyncio.create_task(create_databases_handler(scenes_config))
 
     # Create an async task to scrape the specific storm URL
     image_scrape_task = asyncio.create_task(fetch_images_off_specific_url(

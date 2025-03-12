@@ -2,7 +2,7 @@
 This module provides functions related to saving (to colab), loading (from colab), and downloading (to local) files
 
 Functions:
-    generate_scene_content() 
+    generate_scene_content()
 
     save_stream_items_to_colab()
     save_text_file()

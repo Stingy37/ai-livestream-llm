@@ -65,10 +65,10 @@ class Database:
 '*************************************************************************** Handlers ********************************************************************'
 
 
-# Used to handle all databases that need to be created 
+# Used to handle all databases that need to be created
 async def create_databases_handler(scenes_config):
     """
-    Scrapes the URLs and initializes scene databases, and handles creation of databases used for judging 
+    Scrapes the URLs and initializes scene databases, and handles creation of databases used for judging
     Returns a list of dictionaries of the scene databases. Each dictionary has two keys called query and database_lists:
     {
         'query': query,
@@ -175,7 +175,7 @@ async def create_unique_databases(database_list):
 
 async def create_merged_database():
     """
-    Create a single, merged database out of all the unique databases 
+    Create a single, merged database out of all the unique databases
     """
     all_documents = []
     for database in configs.unique_databases:
@@ -186,7 +186,7 @@ async def create_merged_database():
         all_documents.extend(docs)
 
     # Rebuild a new Database class from the combined documents.
-    merged_database = Database(database = FAISS.from_documents(all_documents, embeddings), metadata = 'Not used') 
+    merged_database = Database(database = FAISS.from_documents(all_documents, embeddings), metadata = 'Not used')
     print("Merged FAISS database created.")
 
     return merged_database

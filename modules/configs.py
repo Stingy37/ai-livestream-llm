@@ -24,6 +24,7 @@ from openai import AsyncOpenAI
 
 #################################################################### General Configs ###########################################################################
 
+
 # User Data Constants
 userdata = {
     'openai_api_key': userdata.get('openai_api_key'),
@@ -72,6 +73,7 @@ executor_list = []
 
 ############################################################ Empty Storage Variables to Initialize Later #########################################################
 
+
 # Used to store FAISS vector databases for easier access
 database_results = []
 unique_databases = []
@@ -81,7 +83,9 @@ merged_database = None
 tt_storm_url = ''
 scenes_config = []
 
+
 ################################################################### Urls and Search Queries ######################################################################
+
 
 websites_and_search_queries = {
     # Sorted by most commonly used -> least commonly used (top to bottom)
@@ -230,7 +234,30 @@ websites_and_search_queries = {
 
 ################################################################## System Instructions ##########################################################################
 
+
 system_instructions_generate_livestream = {
+    # judge_system_instructions_en in use 
+    'judge_system_instructions_en': (
+        "You are a judge that decides whether or not a provided script can be played on a news broadcast. "
+        "Specifically, you will base your decision on how accurate the script is: if it contains NO informational errors, then it can proceed. "
+        "Otherwise, if information errors are present, you should not allow it to proceed. "
+
+        "You will be provided with two sources that you should treat as the “accurate information” in which you are comparing the script against: "
+        "The primary source, contained within these double parantheses: "
+        "(( { primary_judge_info_placeholder } )) "
+        "is what you will primarily use to determine accuracy. This source holds the most weight in your decision - if the secondary source contradicts the primary source, you must treat the primary source as being correct. "
+
+        "The secondary source, contained within these double parantheses: "
+        "(( { secondary_judge_info_placeholder } )) "
+        "should only be relied on if the primary source has information not covered within the script. Otherwise, use the primary in your judging. "
+
+        "Finally, once you’ve arrived at an answer, you are to output ONLY a binary answer: either 0 or 1. "
+        "0 is for not passing (i.e. inaccurate) and 1 is for passing (i.e. accurate). "
+        "Do NOT include anything else in your response except for an integer value of either 0 or 1. "
+
+        "Supplement 1: The script and the information sources must contradict to be an error; if a source merely doesn’t cover information on the script then you must not consider this in your judging. "
+    ), 
+
     # tropics_news_reporter_system_instructions in use
     'tropics_news_reporter_system_instructions_en': (
         "You are a news reporter specializing in giving updates about tropical weather. Information will be given to you from the user's end, which you can pretend is your research team."
