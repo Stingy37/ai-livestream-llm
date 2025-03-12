@@ -9,6 +9,7 @@ Functions:
     create_databases_handler()
     create_databases_for_query()
     create_unique_databases()
+    create_merged_database()
 
     process_urls_for_database()
     process_text_to_db()
@@ -163,13 +164,12 @@ async def create_unique_databases(database_list):
     for db in flattened_database_list:
         # Access the metadata of the custom Database object
         meta = db.metadata['website']
-        print(meta)
         if meta not in seen_metadata:
             seen_metadata.add(meta)
             # Append the unique database class
             unique_databases.append(db)
+
     print("Unique databases created")
-    
     return unique_databases
 
 

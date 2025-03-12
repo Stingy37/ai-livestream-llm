@@ -2,7 +2,7 @@
 This module provides functions related to saving (to colab), loading (from colab), and downloading (to local) files
 
 Functions:
-    generate_scene_content()
+    generate_scene_content() 
 
     save_stream_items_to_colab()
     save_text_file()
@@ -29,16 +29,14 @@ import aiohttp
 from IPython.display import display, Javascript
 
 # Local Application/Library-Specific Imports
-from modules.audio_handler import generate_audio
+from modules.audio_handler import generate_audio_handler
 from modules.configs import tt_scrap_headers
 
 
 async def generate_scene_content(items, language, audio_file_name):
     """Function to generate audio and save items for a scene."""
-    voice = 'fable' if language == 'aus' else 'shimmer' # TEMP, consolidate language settings into global config later
-
     save_stream_items_task = asyncio.create_task(save_stream_items_to_colab(items))
-    generate_audio_task = asyncio.create_task(generate_audio(items, voice, file_name=audio_file_name))
+    generate_audio_task = asyncio.create_task(generate_audio_handler(items, file_name=audio_file_name))
 
     # Run both tasks concurrently and unpack the results
     saved_stream_items, audio_info = await asyncio.gather(save_stream_items_task, generate_audio_task)

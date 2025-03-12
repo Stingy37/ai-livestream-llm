@@ -17,8 +17,13 @@ from modules.configs import client
 from pydub import AudioSegment
 
 
-async def generate_audio(generated_items, voice, file_name, tts_flag_override = False):
+async def generate_audio_handler(generated_items, file_name, tts_flag_override = False):
   generate_audio_start = time.time()
+
+  # Handle voice (choose correct accent)
+  voice = {
+      'aus': 'fable'
+  }.get(configs.scenes_config['language'], 'shimmer') # Essentially switch-case, default value is shimmer 
 
   # Gets script from generated_items
   script_to_read = generated_items['script']

@@ -19,12 +19,12 @@ from modules.configs import embeddings
 from modules.database_handler import Database, find_relevant_docs_query, rebuild_page_content
 
 
-async def judge_handler(input):
+async def judge_handler(input,):
     """
     Controller function for handling judging, returns a binary output indicating whether or not a given input is accurate.
     """
     primary_judge_info, secondary_judge_info = await asyncio.gather(
-        retrieve_primary_judge_info(input),
+        retrieve_primary_judge_info(), # Have the URL param set automatically (depending on configs.scenes_config) 
         retrieve_secondary_judge_info()
     )
 
