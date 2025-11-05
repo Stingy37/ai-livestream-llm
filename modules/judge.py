@@ -18,8 +18,8 @@ from langchain_community.vectorstores import FAISS
 import modules.configs as configs
 
 from modules.configs import (
-    embeddings, 
-    system_instructions_generate_livestream, 
+    embeddings,
+    system_instructions_generate_livestream,
     websites_and_search_queries
 )
 from modules.database_handler import Database, find_relevant_docs_query, rebuild_page_content
@@ -53,15 +53,15 @@ async def judge_language_handler():
     Determines the primary information url based off the current language being used. Returns a dictionary containing language specific values:
     {
       'primary_info_url': 'weather_agency_for_language'
-    } 
-    """    
+    }
+    """
     # Takes advantage of config keys being {topic}_{language}
-    language = configs.scenes_config_list[0]['language']  
-    
+    language = configs.scenes_config_list[0]['language']
+
     key = f"tropics_forecast_websites_{language}" # Could modularize this further later by making the topic a parameter too
     websites_used = websites_and_search_queries.get(key)
 
-    primary_info_url = websites_used.get('primary_website', 'no_url_retrieved') # Where no_url_retrieved is default value 
+    primary_info_url = websites_used.get('primary_website', 'no_url_retrieved') # Where no_url_retrieved is default value
     return {'primary_info_url': primary_info_url}
 
 

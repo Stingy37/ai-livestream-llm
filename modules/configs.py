@@ -82,6 +82,7 @@ merged_database = None
 # Used to store scene configs after they've been set by the user
 tt_storm_url = ''
 scenes_config_list = []
+total_collection_iterations = None
 
 
 ################################################################### Urls and Search Queries ######################################################################
@@ -103,9 +104,9 @@ websites_and_search_queries = {
     },
 
     'tropics_forecast_websites_ph': {
-        'primary_website': 'https://www.metoc.navy.mil/jtwc/products/wp2524prog.txt',
-        'secondary_website_one': 'https://www.pagasa.dost.gov.ph/weather#daily-weather-forecast',
-        'secondary_website_two': 'https://www.rappler.com/philippines/weather/super-typhoon-pepito-update-pagasa-forecast-november-16-2024-2pm/'
+        'primary_website': 'https://www.metoc.navy.mil/jtwc/products/wp2425prog.txt',
+        'secondary_website_one': 'https://www.pagasa.dost.gov.ph/tropical-cyclone/severe-weather-bulletin/1',
+        'secondary_website_two': 'https://www.rappler.com/philippines/weather/super-typhoon-nando-southwest-monsoon-update-pagasa-forecast-september-21-2025-11am/'
     },  # Use Rappler for 3rd slot unless not available
 
     'tropics_forecast_websites_vt': {
@@ -128,9 +129,9 @@ websites_and_search_queries = {
     },
 
     'tropics_main_search_queries': {
-        'agency_query': "tropical cyclone zelia forecast", # "[name] forecast"
-        'query_two': "tropical cyclone zelia impacts australia",# "[name] impacts [country]"
-        'query_three': "tropical cyclone zelia preparation", # "[name] preparation"
+        'agency_query': "typhoon ragasa forecast", # "[name] forecast"
+        'query_two': "typhoon ragasa impacts philippines",# "[name] impacts [country]"
+        'query_three': "typhoon ragasa preparation", # "[name] preparation"
     },
 
     # image_search deprecated, currently not used in livestream
@@ -331,6 +332,7 @@ system_instructions_generate_livestream = {
             " 3. Do not include links in your messaging"
     ),
 
+
     'key_messages_system_instructions_cn': (
             "您是一名專門為公眾創建關於特定天氣事件（主要是熱帶風暴或颶風）的關鍵信息的助理。"
             "用戶會提供信息給您，您將使用這些信息來創建關鍵信息。請記住，這些是關鍵信息——必須精確、正式且易於公眾理解。想像一下，您是一個官方機構在向公眾發出警告。"
@@ -475,6 +477,18 @@ system_instructions_generate_livestream = {
         "6. Do NOT have anything like notes, closing music, and website links (ie. no sources) because that will be read too. "
         "6b. Also REMOVE MARKDOWN ELEMENTS from your answer such as #, -, **, etc - it must be ONLY words"
     ), # Need to update rest of languages to relect changes in tropics_detailed_analysis_system_instructions_en
+
+    'tropics_detailed_analysis_system_instructions_ph': (
+        "Ikaw ay isang edukadong meteorolohistang pang-panahon na dalubhasa sa pagbibigay ng detalyadong pagsusuri ng isang partikular na sistemang tropikal. Ibibigay sa iyo ang impormasyon mula sa panig ng gumagamit, na iyong gagamitin upang likhain ang iyong pagsusuri."
+        "Ang tungkulin mo ay gawing isang script na babasahin nang malakas para sa publiko ang impormasyong ibinigay sa iyo. Narito ang ilang tagubilin na maaari mong sundan upang gawing detalyadong analitikal na script ang impormasyon:"
+        "1. Ikaw ay pangalawa sa programa, kaya maglagay ng isang pariralang transisyonal sa simula, isang bagay na katulad ng 'Sunod, ibibigay ko ang detalyadong pagsusuri tungkol sa ____.'"
+        "2. Ayusin ang iyong script upang ito ay madaling sundan, habang pinapanatili ang teknikal na detalye."
+        "3. Kung may makita kang bagay na masyadong komplikado para maintindihan ng publiko, unang ibigay ang teknikal na detalye, PAGKATAPOS ay magdagdag ng mga paliwanag! Magdagdag din ng paliwanag kung pakiramdam mo ay kailangan mong bigyang-diin ang isang bagay, o kung kailangan mong pahabain ang script upang maabot ang layuning 1000 salita."
+        "4. Magdagdag ng kaunting personalidad!"
+        "5. Palawigin ang script upang umabot sa humigit-kumulang 1000 salita, isang paraan upang gawin ito ay isama lahat ng detalye na ibinigay sa iyo ng iyong research team (panig ng gumagamit)."
+        "6. HUWAG maglagay ng anumang bagay tulad ng mga tala, closing music, at mga link sa website (hal. walang sources) dahil ito ay mababasa rin."
+        "6b. Alisin din ang mga ELEMENTO NG MARKDOWN mula sa iyong sagot gaya ng #, -, **, at iba pa – dapat ay mga salita lamang."
+    ),
 
     'tropics_detailed_analysis_system_instructions_cn': (
         "你是一名专注于某热带系统详细分析的专业气象学家。信息将由用户端提供，你将利用这些信息创建面向公众的分析。"

@@ -85,7 +85,7 @@ async def handle_language(language):
     print("language being used:", language)
     # Dictionary mapping language codes to parameters
     language_params = {
-        'en': { # Refactor this later 
+        'en': { # Refactor this later
             'web_scrapper_system_instructions': system_instructions_generate_livestream['web_scrapper_system_instructions_en'],
             'key_messages_system_instructions': system_instructions_generate_livestream['key_messages_system_instructions_en'],
             'topic_system_instructions': system_instructions_generate_livestream['topic_system_instructions_en'],
@@ -175,7 +175,7 @@ async def create_current_topic_list(stop_event, change_queue):
 # Helper function used only to retrieve website urls from configs
 def websites_and_search_queries_helper(key):
     """
-    Retrieve URLs associated with the given key from websites_and_search_queries. 
+    Retrieve URLs associated with the given key from websites_and_search_queries.
     - If it's a dictionary, return a list of its values (i.e. a list of URLs).
     - If it's a list, return the list directly.
     - Otherwise, return an empty list.

@@ -53,7 +53,7 @@ class Document:
     def __init__(self, page_content, metadata, id = None):
         self.page_content = page_content
         self.metadata = metadata
-        self.id = id or uuid.uuid4()
+        self.id = str(id or uuid.uuid4())
 
 # Link FAISS database to its metadata (i.e. the website used)
 class Database:
