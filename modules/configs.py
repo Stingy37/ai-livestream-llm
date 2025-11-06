@@ -81,7 +81,7 @@ merged_database = None
 
 # Used to store scene configs after they've been set by the user
 tt_storm_url = ''
-scenes_config_list = []
+collection_scenes_config = []
 total_collection_iterations = None
 
 
@@ -90,7 +90,10 @@ total_collection_iterations = None
 
 websites_and_search_queries = {
     # Sorted by most commonly used -> least commonly used (top to bottom)
-
+    #     NOTE -> now, the code EXCEPTS slots with a primary / backup.... so eventually refactor the rest of websites to reflect this
+    #     |-----> look at tropics_forecast_websites_ph for example
+    #
+    # comment / uncomment slots (code should be flexible to handle diff. amount of slots)
     'tropics_forecast_websites_cn': {
         'primary_info': 'https://www.metoc.navy.mil/jtwc/products/wp2324prog.txt', # Primary info is always a official agency (JTWC, NHC, or PAGASA)
         'secondary_info_one': 'https://www.taipeitimes.com/News/front/archives/2024/10/30/2003826086',
@@ -104,10 +107,16 @@ websites_and_search_queries = {
     },
 
     'tropics_forecast_websites_ph': {
-        'primary_website': 'https://www.metoc.navy.mil/jtwc/products/wp2425prog.txt',
-        'secondary_website_one': 'https://www.pagasa.dost.gov.ph/tropical-cyclone/severe-weather-bulletin/1',
-        'secondary_website_two': 'https://www.rappler.com/philippines/weather/super-typhoon-nando-southwest-monsoon-update-pagasa-forecast-september-21-2025-11am/'
-    },  # Use Rappler for 3rd slot unless not available
+        'slot_one':   {'primary': 'https://www.metoc.navy.mil/jtwc/products/wp2425prog.txt',
+                       'backup':  None},  # slot_one   -> always a official weather agency
+        'slot_two':   {'primary': 'https://www.pagasa.dost.gov.ph/tropical-cyclone/severe-weather-bulletin/1',
+                       'backup':  None},  # slot_two   -> secondary weather agency (pagasa for WPAC)
+
+        'slot_three': {'primary': 'https://www.rappler.com/philippines/weather/super-typhoon-nando-southwest-monsoon-update-pagasa-forecast-september-21-2025-11am/',
+                       'backup':  'https://www.metoc.navy.mil/jtwc/products/wp2425prog.txt'}
+                                          # slot_three -> local news (rappler or another backup),
+                                          # NOTE - functions as a test for now since rappler usually hangs
+    },
 
     'tropics_forecast_websites_vt': {
         'primary_website': 'https://www.metoc.navy.mil/jtwc/products/wp1224prog.txt',

@@ -155,6 +155,14 @@ class DatabaseRecord(TypedDict, total=False):
     database_list: List[VectorDBBundle]
 
 
+class WebsiteSlot(TypedDict, total=False):
+    """A primary website and an optional backup, scraped by the same driver."""
+    primary: URL
+    backup: Optional[URL]
+
+
+WebsitesSlots = Dict[str, WebsiteSlot]
+
 SceneDatabaseResults = List[DatabaseRecord]
 """
 The list of database bundles associated with one **scene**.

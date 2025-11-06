@@ -39,7 +39,6 @@ from modules.configs import (
     websites_and_search_queries
 )
 
-
 # Initialize environment for running generate_livestream
 def initialize_environment():
     # Start tracemalloc to track memory allocations
@@ -175,15 +174,42 @@ async def create_current_topic_list(stop_event, change_queue):
 # Helper function used only to retrieve website urls from configs
 def websites_and_search_queries_helper(key):
     """
-    Retrieve URLs associated with the given key from websites_and_search_queries.
-    - If it's a dictionary, return a list of its values (i.e. a list of URLs).
-    - If it's a list, return the list directly.
+    Retrieve websites associated with the given key from websites_and_search_queries.
+
+    Behavior (backward-compatible):
+    - If the value is a slot dict (e.g., {'slot_one': {'primary': ..., 'backup': ...}, ...}),
+      return the dict as-is so downstream code can treat each slot as one unit/driver.
+    - If the value is a flat dict of URLs (legacy style), return list(value.values()).
+    - If the value is already a list, return it directly.
     - Otherwise, return an empty list.
     """
-    value = websites_and_search_queries.get(key)
+    value = websites_and_search_queries.get(key)  # expected: slot dict
+    print(f"[websites_and_search_queries_helper] function called ")
+
+    # Decide result without early returns so we can always print what we're returning.
     if isinstance(value, dict):
-        return list(value.values())
+        # Detect slot-style dict by checking the first value
+        try:
+            first = next(iter(value.values()))
+        except StopIteration:
+            result = value  # empty dict (likely not useful downstream)
+        else:
+            if isinstance(first, dict) and 'primary' in first:
+                result = value  # keep slot structure intact
+            else:
+                # Legacy flat dict → flatten to list of URLs
+                result = list(value.values())
     elif isinstance(value, list):
-        return value
+        result = value
     else:
-        return []
+        result = []
+
+    # Debug prints (key, input type, return type, small preview)
+    print(f"[websites_and_search_queries_helper] key={key!r} input_type={type(value).__name__} -> return_type={type(result).__name__}")
+    if isinstance(result, dict):
+        print(f"[websites_and_search_queries_helper] return dict keys (sample): {list(result.keys())[:5]}")
+    elif isinstance(result, list):
+        first_type = type(result[0]).__name__ if result else "N/A"
+        print(f"[websites_and_search_queries_helper] return list len={len(result)}; first_item_type={first_type}")
+
+    return result

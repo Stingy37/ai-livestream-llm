@@ -25,7 +25,7 @@ from modules.configs import (
 from modules.database_handler import Database, find_relevant_docs_query, rebuild_page_content
 
 
-async def judge_handler(input): # Modularize further by getting the topic from scenes_config_list['a_certain_key']
+async def judge_handler(input): # Modularize further by getting the topic from collection_scenes_config['a_certain_key']
     """
     Controller function for handling judging, returns a binary output indicating whether or not a given input is accurate.
     """
@@ -35,7 +35,7 @@ async def judge_handler(input): # Modularize further by getting the topic from s
 
     # Get context for judge
     primary_judge_info, secondary_judge_info = await asyncio.gather(
-        retrieve_primary_judge_info(primary_info_url), # Have the URL param set automatically (depending on configs.scenes_config_list)
+        retrieve_primary_judge_info(primary_info_url), # Have the URL param set automatically (depending on configs.collection_scenes_config)
         retrieve_secondary_judge_info()
     )
 
@@ -56,7 +56,7 @@ async def judge_language_handler():
     }
     """
     # Takes advantage of config keys being {topic}_{language}
-    language = configs.scenes_config_list[0]['language']
+    language = configs.collection_scenes_config[0]['language']
 
     key = f"tropics_forecast_websites_{language}" # Could modularize this further later by making the topic a parameter too
     websites_used = websites_and_search_queries.get(key)

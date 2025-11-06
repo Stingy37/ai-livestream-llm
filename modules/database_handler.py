@@ -44,8 +44,9 @@ from modules.configs import (
     websites_and_search_queries,
     embeddings
 )
-from modules.web_scraper import fetch_and_process_html, google_search
+from modules.web_scraper import fetch_and_process_slot, google_search
 from modules.webdriver_handler import create_drivers
+from modules.schema import SceneDatabaseResults, AllScenesDatabaseResults
 
 
 # Aligned with langchain's document class, instances of this class used to create database
@@ -66,7 +67,9 @@ class Database:
 
 
 # Used to handle all databases that need to be created
-async def create_databases_handler(scenes_config_list):
+async def create_databases_handler(
+    collection_scenes_config: list[dict]
+) -> AllScenesDatabaseResults:
     """
     Scrapes the URLs and initializes scene databases, and handles creation of databases used for judging
     Returns a list of dictionaries of the scene databases. Each dictionary has two keys called query and database_lists:
@@ -85,7 +88,7 @@ async def create_databases_handler(scenes_config_list):
                 do_google_search = False,
                 websites_to_use = scene['websites'],
             )
-        ) for scene in scenes_config_list
+        ) for scene in collection_scenes_config
     ]
     scene_database_results = await asyncio.gather(*database_tasks)
     configs.database_results = scene_database_results # Make scene results globally accessible
@@ -116,32 +119,56 @@ async def scene_database_handler(search_queries, search_api_key, search_engine_i
 
 
 async def create_databases_for_query(query, search_api_key, search_engine_id, do_google_search, websites_to_use):
-    print("do_google_search value for ", query, ": ", do_google_search)
+    print("[create_databases_for_query] do_google_search value for ", query, ": ", do_google_search)
 
-    # Determine how much drivers needed to scrape websites based on amount of URLs used
+    ######################################################### handle google search if user asks for it  #######################################################################
+    #                                                                      deprecated 
+    '''
     if do_google_search:
         drivers_to_create = google_search_urls_to_return
-    else:
-        drivers_to_create = len(websites_to_use)
-
-    driver_list = await create_drivers(drivers_to_create) # One driver created for every url
-
-    if do_google_search: # Checks to see whether user wants to do google search or has predetermined URLs
+        driver_list = await create_drivers(drivers_to_create)
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300)) as session:
-            urls_task = google_search(session, query, search_api_key, search_engine_id, number_to_return = google_search_urls_to_return, search_images = False)
+            urls_task = google_search(session, query, search_api_key, search_engine_id,
+                                      number_to_return=google_search_urls_to_return, search_images=False)
             urls = await urls_task
-    else:
-        urls = websites_to_use # Assign urls directly without doing google search
 
-    semaphore = asyncio.Semaphore(100) # Limit the number of concurrent tasks ONLY for PDFs - set high number to disable it
+        semaphore = asyncio.Semaphore(100)
+        print(f"[create_databases_for_query] Amount of drivers to scrap {len(urls)} urls: {len(driver_list)}")
+        tasks = [
+            fetch_and_process_html(driver, url, process_to_db=True, semaphore=semaphore)
+            for driver, url in zip(driver_list, urls)
+        ]
+        database_list = await asyncio.gather(*tasks)
+        return {'query': query, 'database_list': database_list} # either google search OR user-set URLs
+    '''
 
-    print(f"Amount of drivers to scrap {len(urls)} urls: {len(driver_list)}")
+    ################################################################## handle user-set urls #######################################################################
 
-    # Create async tasks for fetching and processing HTML
-    tasks = [fetch_and_process_html(driver, url, process_to_db=True, semaphore=semaphore) for driver, url in zip(driver_list, urls)]
+
+    # websites_to_use is like: {'slot_one': {'primary': ..., 'backup': ...}, ...}
+    print(f"[create_databases_for_query] websites_to_use type: {type(websites_to_use)}")
+    print(f"[create_databases_for_query] websites_to_use: {websites_to_use}")
+    slots = list(websites_to_use.values())
+    drivers_to_create = len(slots)
+    driver_list = await create_drivers(drivers_to_create)
+
+    semaphore = asyncio.Semaphore(100)
+    print(f"[create_databases_for_query] Amount of drivers to scrap {len(slots)} slots (with backups if needed): {len(driver_list)}")
+
+    # HERE is where we break down primary and backup urls
+    tasks = [
+        fetch_and_process_slot(
+            driver=driver,
+            primary_url=slot.get('primary'),
+            backup_url=slot.get('backup'),
+            process_to_db=True,
+            semaphore=semaphore
+        )
+        for driver, slot in zip(driver_list, slots)
+    ]
     database_list = await asyncio.gather(*tasks)
-
     return {'query': query, 'database_list': database_list}
+
 
 
 '***************************************************************** Lower Level Functions ********************************************************************'
@@ -169,7 +196,7 @@ async def create_unique_databases(database_list):
             # Append the unique database class
             unique_databases.append(db)
 
-    print("Unique databases created")
+    print("[create_unique_databases] Unique databases created")
     return unique_databases
 
 
@@ -187,7 +214,7 @@ async def create_merged_database():
 
     # Rebuild a new Database class from the combined documents.
     merged_database = Database(database = FAISS.from_documents(all_documents, embeddings), metadata = 'Not used')
-    print("Merged FAISS database created.")
+    print("[create_merged_database] Merged FAISS database created.")
 
     return merged_database
 
@@ -202,7 +229,7 @@ def process_text_to_db(clean_texts, url):
     # Creating the FAISS vector database (CPU-bound operation)
     faiss_db = Database(database=FAISS.from_documents(total_docs, embeddings), metadata=metadata)
     database_end_time = time.time()
-    print(f"Time taken to create database for {url}: {database_end_time - database_start_time}")
+    print(f"[process_text_to_db] Time taken to create database for {url}: {database_end_time - database_start_time}")
 
     return faiss_db
 

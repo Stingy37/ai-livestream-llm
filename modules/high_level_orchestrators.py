@@ -27,12 +27,15 @@ from modules.configs import (
 from modules.database_handler import find_relevant_docs_database
 from modules.openai_handler import generate_text, return_gpt_answer
 from modules.utils import handle_language
-
+from modules.schema import SceneItems, SceneDatabaseResults
 
 # Sets up variables + environment for create_script, then handles what it returns
-async def create_script_handler(queries_dictionary_list, websites_used,
-                        final_script_system_instructions, language):
-
+async def create_script_handler(
+    queries_dictionary_list: SceneDatabaseResults,
+    websites_used: list[str],
+    final_script_system_instructions: str,
+    language: str
+) -> SceneItems:
     (web_scrapper_system_instructions,
      key_messages_system_instructions,
      topic_system_instructions) = await handle_language(language)
@@ -97,11 +100,11 @@ async def async_parallel_run(queries_dictionary_list, websites_used, k_value_sim
     tasks = []
 
     for query_dict in queries_dictionary_list:
-        print(f"added a new get_intermediate_answer task for [{query_dict['query']}]'s databases")
+        print(f"[async_parallel_run] added a new get_intermediate_answer task for [{query_dict['query']}]'s databases")
         tasks.append(get_intermediate_answer(query_dict, websites_used, k_value_similarity_search, web_scrapper_system_instructions))
 
-    print("executing tasks")
-    print(tasks)
+    print("[async_parallel_run] executing tasks")
+    print("[async_parallel_run]", tasks)
 
     # Results is a dictionary containing intermediate GPT answer
     results_dict = await asyncio.gather(*tasks)
@@ -123,10 +126,6 @@ async def get_intermediate_answer(query_dict, websites_used, k_value_similarity_
           page_content_placeholder = page_content,
           metadata_placeholder = metadata
       )
-
       gpt_answer = await return_gpt_answer(formatted_web_scrapper_system_instructions, query_dict['query'])
 
       return {"intermediate_gpt_answer": gpt_answer}
-
-
-#############################################################################################################################

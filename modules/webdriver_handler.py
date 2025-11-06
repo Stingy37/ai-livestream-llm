@@ -19,9 +19,12 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 
+DRIVER_STARTUP_SEM = asyncio.Semaphore(2)
+
+
 # Creates chrome drivers with arguments suited to scraping urls
 def initialize_chrome_driver():
-    print("created a driver")
+    print("[initialize_chrome_driver] created a driver")
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -45,29 +48,39 @@ def initialize_chrome_driver():
 
             # print(f"Using chromedriver at: {chromedriver_path}")
             driver = webdriver.Chrome(service=Service(chromedriver_path), options=chrome_options)
-            driver.set_page_load_timeout(300)          # 5 minutes for page load
-
-            # driver.execute_cdp_cmd("Network.setExtraHTTPHeaders", {"headers": custom_headers})
+            driver.set_page_load_timeout(30)          # 30 sec max for page load (otherwise, revert to backup)
+            driver.command_executor.set_timeout(30)   # for lower level hangs 
+            try:
+                import urllib3
+                driver.command_executor._conn = urllib3.PoolManager(retries=0) # disable http retries
+            except Exception as e:
+                print(f"[initialize_chrome_driver] Could not disable retries: {e}")
 
             return driver
 
         except Exception as e:
-            print(f"Failed to initialize ChromeDriver. Retrying... ({retry_count + 1}/10)")
-            print("Error exception:", e)
+            print(f"[initialize_chrome_driver] Failed to initialize ChromeDriver. Retrying... ({retry_count + 1}/10)")
+            print("[initialize_chrome_driver] Error exception:", e)
             retry_count += 1
             time.sleep(1)
     raise RuntimeError("Failed to initialize ChromeDriver after several attempts")
 
 
-# Calls initialize_chrome_driver asynchronously
+# calls initialize_chrome_driver asynchronously
 async def create_drivers(num_of_drivers): # In most cases num_of_drivers = urls_to_return
     loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor() as executor:
-        # Create an array of async tasks, each of which calls initialize_chrome_driver() in a worker
-        tasks = [
-            loop.run_in_executor(executor, initialize_chrome_driver)
-            for _ in range(num_of_drivers)
-        ]
-        # Wait on them all
-        drivers = await asyncio.gather(*tasks)
+
+    async def _one():
+      async with DRIVER_STARTUP_SEM:
+          return await loop.run_in_executor(None, initialize_chrome_driver)
+    drivers = await asyncio.gather(*[_one() for _ in range(num_of_drivers)])
+    
+    # print out session info for all drivers
+    session_info = [
+        f"  - Driver {i+1}: session_id={getattr(driver, 'session_id', None)} executor={getattr(driver.command_executor, '_url', None)}"
+        for i, driver in enumerate(drivers)
+    ]
+    session_info_str = "\n".join(session_info)
+    print(f"[create_drivers] Created {len(drivers)} driver(s):\n{session_info_str}")
+  
     return drivers

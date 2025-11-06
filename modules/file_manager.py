@@ -31,16 +31,29 @@ from IPython.display import display, Javascript
 # Local Application/Library-Specific Imports
 from modules.audio_handler import generate_audio_handler
 from modules.configs import tt_scrap_headers
+from modules.schema import (
+    SavedStreamItems,
+    SceneItems,
+    AudioInfo,
+    GenerateSceneReturn,
+    FilePath,
+    ScrapedImageList
+)
 
 
-async def generate_scene_content(items, language, audio_file_name):
-    """Function to generate audio and save items for a scene."""
+async def generate_scene_content(
+    items: SceneItems,
+    language: str,
+    audio_file_name: str
+) -> GenerateSceneReturn:
+    """
+    Function to generate audio and save items for a scene.
+    """
     save_stream_items_task = asyncio.create_task(save_stream_items_to_colab(items))
     generate_audio_task = asyncio.create_task(generate_audio_handler(items, file_name=audio_file_name))
 
     # Run both tasks concurrently and unpack the results
     saved_stream_items, audio_info = await asyncio.gather(save_stream_items_task, generate_audio_task)
-
     return saved_stream_items, audio_info
 
 

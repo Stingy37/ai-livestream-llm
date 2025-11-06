@@ -9,12 +9,12 @@ import time
 
 # Third-Party Library Imports
 from IPython.display import Audio, display
+from pydub import AudioSegment
 
 # Local Application/Library-Specific Imports
 import modules.configs as configs # Must import entire module to use use_tts_api as flag
-
 from modules.configs import client
-from pydub import AudioSegment
+from modules.schema import AudioInfo
 
 
 async def generate_audio_handler(generated_items, file_name, tts_flag_override = False):
@@ -23,7 +23,7 @@ async def generate_audio_handler(generated_items, file_name, tts_flag_override =
   # Handle voice (choose correct accent)
   voice = {
       'aus': 'fable'
-  }.get(configs.scenes_config_list[0]['language'], 'shimmer') # Essentially switch-case, default value is shimmer
+  }.get(configs.collection_scenes_config[0]['language'], 'shimmer') # Essentially switch-case, default value is shimmer
 
   # Gets script from generated_items
   script_to_read = generated_items['script']
@@ -107,11 +107,11 @@ async def load_audio_files(file_name):
     return audio_part1, audio_part2, audio_part3
 
 
-async def play_audio(file_info):
+async def play_audio(audio_info: AudioInfo) -> None:
     # Get info (duration and name) from file_info
-    print("file_info:", file_info)
-    audio_duration = file_info['duration_seconds']
-    file_name = file_info['name']
+    print("file_info:", audio_info)
+    audio_duration = audio_info['duration_seconds']
+    file_name = audio_info['name']
 
     # Play the given audio file in Colab
     actual_finish_time_start = time.time()
