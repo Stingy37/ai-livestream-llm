@@ -18,16 +18,16 @@ import asyncio
 import aiohttp
 
 # Local Application/Library-Specific Imports
-from modules.configs import (
+from modules.core.configs import (
     google_search_urls_to_return,
     images_to_return,
     search_api_key,
     search_engine_id,
 )
-from modules.database_handler import find_relevant_docs_database
-from modules.openai_handler import generate_text, return_gpt_answer
-from modules.utils import handle_language
-from modules.schema import SceneItems, SceneDatabaseResults
+from modules.data.database_handler import find_relevant_docs_database
+from modules.generation.openai_handler import generate_text, return_gpt_answer
+from modules.core.utils import handle_language
+from modules.core.schema import SceneItems, SceneDatabaseResults
 
 # Sets up variables + environment for create_script, then handles what it returns
 async def create_script_handler(

@@ -20,10 +20,10 @@ from IPython.display import clear_output
 from mutagen.mp3 import MP3
 
 # Local Application/Library-Specific Imports
-import modules.configs as configs # Import 'configs' module directly to change global states
+import modules.core.configs as configs # Import 'configs' module directly to change global states
 
-from modules.audio_handler import play_audio
-from modules.configs import (
+from modules.generation.audio_handler import play_audio
+from modules.core.configs import (
     google_search_urls_to_return,
     images_to_return,
     search_api_key,
@@ -32,12 +32,12 @@ from modules.configs import (
     use_tts_api,
     websites_and_search_queries
 )
-from modules.database_handler import create_databases_handler, create_unique_databases
-from modules.file_manager import download_file_handler, generate_scene_content, save_images_async
-from modules.high_level_orchestrators import create_script_handler
-from modules.utils import initialize_executors, reset_global_variables, shutdown_executors
-from modules.web_scraper import fetch_images_off_specific_url
-from modules.schema import (
+from modules.data.database_handler import create_databases_handler, create_unique_databases
+from modules.generation.file_manager import download_file_handler, generate_scene_content, save_images_async
+from modules.core.high_level_orchestrators import create_script_handler
+from modules.core.utils import initialize_executors, reset_global_variables, shutdown_executors
+from modules.data.web_scraper import fetch_images_off_specific_url
+from modules.core.schema import (
     CollectionConfig,
     ScenesItemsList,
     SceneItems,
@@ -56,7 +56,7 @@ async def generate_livestream(
 
     # Initialize executors
     initialize_executors()
-    
+
     '***************************************************** Centralized configuration for all scenes ******************************************************'
     if first_call:
       # unpack everything from the provided configs
@@ -213,7 +213,7 @@ async def collections_handler(
             final_audio_task = await scene_handler(
                 scenes_items, initial_previous_task=final_audio_task
             )
-         
+
 
 
 async def scene_handler(

@@ -29,10 +29,10 @@ from langchain_community.document_transformers import MarkdownifyTransformer
 from PyPDF2 import PdfReader
 
 # Local Application/Library-Specific Imports
-from modules.configs import database_executor, fetch_html_executor, cse_api_call_count, cse_api_call_lock
-from modules.text_processing import filter_content, split_markdown_chunks
-from modules.webdriver_handler import create_drivers
-from modules.schema import ScrapedImageList, URL
+from modules.core.configs import database_executor, fetch_html_executor, cse_api_call_count, cse_api_call_lock
+from modules.data.text_processing import filter_content, split_markdown_chunks
+from modules.data.webdriver_handler import create_drivers
+from modules.core.schema import ScrapedImageList, URL
 
 
 #################################################################### debug info for webdrivers ###################################################
@@ -128,7 +128,7 @@ async def fetch_and_process_slot(driver, primary_url, backup_url, process_to_db,
 
     try:
         # primary scraping attempt (don't quit driver yet)
-        clean_texts = await fetch_html(driver, primary_url, semaphore, should_quit=False, scrape_id=scrape_id, attempt="primary") 
+        clean_texts = await fetch_html(driver, primary_url, semaphore, should_quit=False, scrape_id=scrape_id, attempt="primary")
                                                                         # should_quit parameter is kind of redundant because
                                                                         # we ALWAYS fall back & quit driver here, refactor later
         url_for_metadata = primary_url
@@ -148,7 +148,7 @@ async def fetch_and_process_slot(driver, primary_url, backup_url, process_to_db,
             except Exception as e:
                 print(f"[fetch_and_process_slot {scrape_id}] cleanup failed: {e}")
 
-            
+
             # create a fresh driver for this slot
             new_driver = (await create_drivers(1))[0]
             setattr(new_driver, "_scrape_id", scrape_id)
@@ -195,7 +195,7 @@ async def fetch_html(driver, url, semaphore, should_quit=True, scrape_id: str | 
 
 
 # Scraps HTML from website using webdriver and converts HTML to markdown
-def fetch_html_sync(driver, url, should_quit=True, scrape_id: str | None = None, attempt: str = "primary"):  
+def fetch_html_sync(driver, url, should_quit=True, scrape_id: str | None = None, attempt: str = "primary"):
                                   # |- we pass should_quit = false if we want to reuse the same driver for backups
     from modules.database_handler import Document
     try:
@@ -223,7 +223,7 @@ def fetch_html_sync(driver, url, should_quit=True, scrape_id: str | None = None,
         clean_texts = split_markdown_chunks(markdown_document, 500)
         return clean_texts
 
-    # except block for scrap failures, finally block for quiting drivers 
+    # except block for scrap failures, finally block for quiting drivers
     except Exception as e:
         sid = getattr(driver, "_scrape_id", scrape_id)
         session_id, ce_url = _driver_debug_info(driver)
@@ -235,7 +235,6 @@ def fetch_html_sync(driver, url, should_quit=True, scrape_id: str | None = None,
                 sid = getattr(driver, "_scrape_id", scrape_id)
                 print(f"[fetch_html_sync {sid}] quitting driver")
                 driver.quit()
-                await asyncio.sleep(1)
             except Exception:
                 pass
 

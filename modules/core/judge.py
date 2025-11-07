@@ -15,14 +15,14 @@ Functions:
 from langchain_community.vectorstores import FAISS
 
 # Local Application/Library-Specific Imports
-import modules.configs as configs
+import modules.core.configs as configs
 
-from modules.configs import (
+from modules.core.configs import (
     embeddings,
     system_instructions_generate_livestream,
     websites_and_search_queries
 )
-from modules.database_handler import Database, find_relevant_docs_query, rebuild_page_content
+from modules.data.database_handler import Database, find_relevant_docs_query, rebuild_page_content
 
 
 async def judge_handler(input): # Modularize further by getting the topic from collection_scenes_config['a_certain_key']

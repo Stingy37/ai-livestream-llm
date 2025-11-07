@@ -58,8 +58,8 @@ def initialize_chrome_driver():
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--enable-javascript')
-    chrome_options.add_argument(f"--user-data-dir=/tmp/{session_tag}") # tag visible in cmdline for cleanup_chromedrivers to kill zombie processes 
- 
+    chrome_options.add_argument(f"--user-data-dir=/tmp/{session_tag}") # tag visible in cmdline for cleanup_chromedrivers to kill zombie processes
+
 
     # Disable image loading
     prefs = {"profile.managed_default_content_settings.images": 2}
@@ -79,7 +79,7 @@ def initialize_chrome_driver():
             # set driver settings
             driver = webdriver.Chrome(service=Service(chromedriver_path), options=chrome_options)
             driver.set_page_load_timeout(30)                      # 30 sec max for page load (otherwise, revert to backup)
-            driver.command_executor._client_config.timeout = 30   # timeout for http hangs 
+            driver.command_executor._client_config.timeout = 30   # timeout for http hangs
 
             try:
                 import urllib3
@@ -107,7 +107,7 @@ async def create_drivers(num_of_drivers): # In most cases num_of_drivers = urls_
       async with DRIVER_STARTUP_SEM:
           return await loop.run_in_executor(None, initialize_chrome_driver)
     drivers = await asyncio.gather(*[_one() for _ in range(num_of_drivers)])
-    
+
     # print out session info for all drivers
     session_info = [
         f"  - Driver {i+1}: session_id={getattr(driver, 'session_id', None)} executor={getattr(driver.command_executor, '_url', None)}"

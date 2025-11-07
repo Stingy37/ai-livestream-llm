@@ -12,7 +12,7 @@ Functions:
 import re
 
 # Local Application/Library-Specific Imports
-from modules.configs import splitter_pattern
+from modules.core.configs import splitter_pattern
 
 
 # Gets rid of unnecessarily large pieces of HTML

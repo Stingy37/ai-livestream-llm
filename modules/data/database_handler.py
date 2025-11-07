@@ -32,9 +32,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from langchain_community.vectorstores import FAISS
 
 # Local Application/Library-Specific Imports
-import modules.configs as configs
+import modules.core.configs as configs
 
-from modules.configs import (
+from modules.core.configs import (
     google_search_urls_to_return,
     images_to_return,
     search_api_key,
@@ -44,9 +44,9 @@ from modules.configs import (
     websites_and_search_queries,
     embeddings
 )
-from modules.web_scraper import fetch_and_process_slot, google_search
-from modules.webdriver_handler import create_drivers
-from modules.schema import SceneDatabaseResults, AllScenesDatabaseResults
+from modules.data.web_scraper import fetch_and_process_slot, google_search
+from modules.data.webdriver_handler import create_drivers
+from modules.core.schema import SceneDatabaseResults, AllScenesDatabaseResults
 
 
 # Aligned with langchain's document class, instances of this class used to create database
@@ -122,7 +122,7 @@ async def create_databases_for_query(query, search_api_key, search_engine_id, do
     print("[create_databases_for_query] do_google_search value for ", query, ": ", do_google_search)
 
     ######################################################### handle google search if user asks for it  #######################################################################
-    #                                                                      deprecated 
+    #                                                                      deprecated
     '''
     if do_google_search:
         drivers_to_create = google_search_urls_to_return

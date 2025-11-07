@@ -12,9 +12,9 @@ from IPython.display import Audio, display
 from pydub import AudioSegment
 
 # Local Application/Library-Specific Imports
-import modules.configs as configs # Must import entire module to use use_tts_api as flag
-from modules.configs import client
-from modules.schema import AudioInfo
+import modules.core.configs as configs # Must import entire module to use use_tts_api as flag
+from modules.core.configs import client
+from modules.core.schema import AudioInfo
 
 
 async def generate_audio_handler(generated_items, file_name, tts_flag_override = False):

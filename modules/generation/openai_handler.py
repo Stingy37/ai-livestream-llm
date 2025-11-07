@@ -16,8 +16,8 @@ import openai
 from openai import APIError, RateLimitError
 
 # Local Application/Library-Specific Imports
-from modules.configs import client
-from modules.text_processing import filter_key_messages
+from modules.core.configs import client
+from modules.data.text_processing import filter_key_messages
 
 
 async def generate_text(combined_answers, system_instructions, item_being_generated):

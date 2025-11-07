@@ -30,7 +30,7 @@ import nest_asyncio
 
 
 # Local Application/Library-Specific Imports
-from modules.configs import (
+from modules.core.configs import (
     fetch_html_executor,
     database_executor,
     executor_list,

@@ -29,9 +29,9 @@ import aiohttp
 from IPython.display import display, Javascript
 
 # Local Application/Library-Specific Imports
-from modules.audio_handler import generate_audio_handler
-from modules.configs import tt_scrap_headers
-from modules.schema import (
+from modules.generation.audio_handler import generate_audio_handler
+from modules.core.configs import tt_scrap_headers
+from modules.core.schema import (
     SavedStreamItems,
     SceneItems,
     AudioInfo,
