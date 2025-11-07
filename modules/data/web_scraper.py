@@ -138,10 +138,16 @@ async def fetch_and_process_slot(driver, primary_url, backup_url, process_to_db,
             # always quit and respawn the driver ("bad" active driver remains from failed attempt, must get rid of it)
             print(f"[fetch_and_process_slot {scrape_id}] respawning driver for backup")
             try:
+                session_tag = getattr(driver, "_session_tag", None)
                 driver.quit()
-            except Exception:
-                pass
-            await asyncio.sleep(1)
+                await asyncio.sleep(1)
+
+                # extra redundancy: kill any leftover chrome/chromedriver processes from this session
+                if session_tag:
+                    cleanup_chromedrivers(session_tag)
+            except Exception as e:
+                print(f"[fetch_and_process_slot {scrape_id}] cleanup failed: {e}")
+
             
             # create a fresh driver for this slot
             new_driver = (await create_drivers(1))[0]
@@ -166,6 +172,7 @@ async def fetch_and_process_slot(driver, primary_url, backup_url, process_to_db,
         try:
             print(f"[fetch_and_process_slot {scrape_id}] quitting driver")
             driver.quit()
+            await asyncio.sleep(1)
         except Exception:
             pass
 
@@ -228,6 +235,7 @@ def fetch_html_sync(driver, url, should_quit=True, scrape_id: str | None = None,
                 sid = getattr(driver, "_scrape_id", scrape_id)
                 print(f"[fetch_html_sync {sid}] quitting driver")
                 driver.quit()
+                await asyncio.sleep(1)
             except Exception:
                 pass
 
@@ -297,6 +305,7 @@ async def fetch_images_off_specific_url(url: URL) -> ScrapedImageList:
 
     print(f"[fetch_images_off_specific_url] quitting driver")
     driver.quit()
+    await asyncio.sleep(1)
 
     return image_urls
 
