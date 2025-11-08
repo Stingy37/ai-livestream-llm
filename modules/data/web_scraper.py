@@ -1,3 +1,4 @@
+%%writefile ai-livestream-llm/modules/data/web_scraper.py
 """
 This module provides functions that related to returning text or images from a certain URL
 
@@ -161,7 +162,7 @@ async def fetch_and_process_slot(driver, primary_url, backup_url, process_to_db,
 
         # process to database
         if clean_texts and process_to_db:
-            from modules.database_handler import process_text_to_db
+            from modules.data.database_handler import process_text_to_db
             loop = asyncio.get_event_loop()
             return await loop.run_in_executor(database_executor, process_text_to_db, clean_texts, url_for_metadata)
         # if user doesn't ask to process_to_db, we just return clean_text
@@ -197,7 +198,7 @@ async def fetch_html(driver, url, semaphore, should_quit=True, scrape_id: str | 
 # Scraps HTML from website using webdriver and converts HTML to markdown
 def fetch_html_sync(driver, url, should_quit=True, scrape_id: str | None = None, attempt: str = "primary"):
                                   # |- we pass should_quit = false if we want to reuse the same driver for backups
-    from modules.database_handler import Document
+    from modules.data.database_handler import Document
     try:
         # try to recover id/session info from driver if not provided (for debug print statements)
         sid = getattr(driver, "_scrape_id", scrape_id)
@@ -335,3 +336,4 @@ async def get_image_urls(cleaned_html):
     image_urls = list(set(image_urls))
 
     return image_urls
+
